@@ -23,24 +23,26 @@
       <file leaf-file-name="Controller.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Controller.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-479">
-              <caret line="77" column="5" selection-start-line="77" selection-start-column="5" selection-end-line="77" selection-end-column="5" />
+            <state relative-caret-position="175">
+              <caret line="72" column="44" selection-start-line="72" selection-start-column="44" selection-end-line="72" selection-end-column="44" />
               <folding>
-                <marker date="1474153162800" expanded="true" signature="0:47" ph="&quot;&quot;&quot;Created on Aug 28, 2016...&quot;&quot;&quot;" />
-                <marker date="1474153162800" expanded="true" signature="48:289" ph="import ..." />
-                <marker date="1474153162800" expanded="true" signature="315:324" ph="..." />
-                <marker date="1474153162800" expanded="true" signature="348:2109" ph="..." />
-                <marker date="1474153162800" expanded="true" signature="373:1385" ph="..." />
-                <marker date="1474153162800" expanded="true" signature="840:1044" ph="..." />
-                <marker date="1474153162800" expanded="true" signature="1172:1331" ph="..." />
-                <marker date="1474153162800" expanded="true" signature="2145:2667" ph="..." />
-                <marker date="1474153162800" expanded="true" signature="2299:2443" ph="..." />
+                <element signature="e#48#63#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DT.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="397">
+              <caret line="89" column="5" selection-start-line="89" selection-start-column="5" selection-end-line="89" selection-end-column="5" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DT.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DT.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="254">
@@ -87,8 +89,9 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Controller.py" />
         <option value="$PROJECT_DIR$/DT.py" />
+        <option value="$PROJECT_DIR$/Controller.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -418,24 +421,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Controller.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-479">
-          <caret line="77" column="5" selection-start-line="77" selection-start-column="5" selection-end-line="77" selection-end-column="5" />
-          <folding>
-            <marker date="1474153162800" expanded="true" signature="0:47" ph="&quot;&quot;&quot;Created on Aug 28, 2016...&quot;&quot;&quot;" />
-            <marker date="1474153162800" expanded="true" signature="48:289" ph="import ..." />
-            <marker date="1474153162800" expanded="true" signature="315:324" ph="..." />
-            <marker date="1474153162800" expanded="true" signature="348:2109" ph="..." />
-            <marker date="1474153162800" expanded="true" signature="373:1385" ph="..." />
-            <marker date="1474153162800" expanded="true" signature="840:1044" ph="..." />
-            <marker date="1474153162800" expanded="true" signature="1172:1331" ph="..." />
-            <marker date="1474153162800" expanded="true" signature="2145:2667" ph="..." />
-            <marker date="1474153162800" expanded="true" signature="2299:2443" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/KNN.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -451,6 +436,24 @@
           <folding>
             <marker date="1474153442270" expanded="false" signature="115:165" ph="import ..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Controller.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="175">
+          <caret line="72" column="44" selection-start-line="72" selection-start-column="44" selection-end-line="72" selection-end-column="44" />
+          <folding>
+            <element signature="e#48#63#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="397">
+          <caret line="89" column="5" selection-start-line="89" selection-start-column="5" selection-end-line="89" selection-end-column="5" />
+          <folding />
         </state>
       </provider>
     </entry>
