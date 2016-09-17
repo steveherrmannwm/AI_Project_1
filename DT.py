@@ -44,11 +44,7 @@ class DT(object):
                 print("Error: there must be the same number of data points in X and Y")
                 return 0
 
-<<<<<<< HEAD
             if len(sizeY) > 1 and sizeY[1] == 1:
-=======
-            if sizeY[1] == 1:
->>>>>>> e9a7488ce01e28161a182ad14be4af1b10cec4da
                 Y = np.reshape(Y, (sizeY[1], sizeY[0]))
                 Y = Y[0]
                 sizeY = Y.shape
@@ -62,7 +58,7 @@ class DT(object):
             if('isLeaf' not in model.keys()):
                 print("Error: model does not appear to be a DT model")
                 return 0
-            
+
             #set up output
             rowCol = test_case.shape
             if(len(rowCol) < 2):
@@ -77,10 +73,7 @@ class DT(object):
         print("Error: unknown DT mode: need train or predict")
 
     def DTconstruct(self, X, Y, cutoff):
-<<<<<<< HEAD
         print "BUILDING A TREE"
-=======
->>>>>>> e9a7488ce01e28161a182ad14be4af1b10cec4da
         # X COLUMNS ARE FEATURES
         # X ROWS ARE INDIVIDUAL DATA POINTS
         # Y IS WHAT EACH POINT SHOULD BE CLASSIFIED AS
@@ -89,11 +82,8 @@ class DT(object):
             X = X[:X.shape[0] * cutoff/100]
             Y = Y[:Y.shape[0] * cutoff/100]
         # Have a standard guess in case we hit a case to end
-<<<<<<< HEAD
         print X.shape
         print Y.shape
-=======
->>>>>>> e9a7488ce01e28161a182ad14be4af1b10cec4da
         guess = most_common(Y)
         # handle the case where all labels are the same
         if len(set(Y)) == 1:
@@ -113,7 +103,6 @@ class DT(object):
 
         columns_to_search = [x for x in xrange(X.shape[1]) if x not in self.completed_features]
         rows_to_search = X.shape[0]
-<<<<<<< HEAD
 
         print columns_to_search
         print rows_to_search
@@ -129,16 +118,10 @@ class DT(object):
         for column in columns_to_search:
             votes = 0
             arr_row = np.array([X[row]])
-=======
-        # Get the votes from each feature that hasn't been touched
-        for column in columns_to_search:
-            votes = 0
->>>>>>> e9a7488ce01e28161a182ad14be4af1b10cec4da
             for row in xrange(rows_to_search):
                 # Weight the algorithm to favor features which are easier to find discrepancies
                 if X[row][column] >= 0.5:
                     votes += 1
-<<<<<<< HEAD
                     yes_data = np.concatenate((yes_data, arr_row), axis=0)
                     yes_labels = np.append(yes_labels, Y[row])
                 else:
@@ -146,15 +129,10 @@ class DT(object):
                     # Append the row to the array horizontally
                     no_data = np.concatenate((no_data, arr_row), axis=0)
                     no_labels = np.append(no_labels, Y[row])
-=======
-                else:
-                    votes -= 1
->>>>>>> e9a7488ce01e28161a182ad14be4af1b10cec4da
             # ABS incase we get more negative votes
             if abs(votes) > max_votes:
                 feature_to_check = column
                 max_votes = votes
-<<<<<<< HEAD
                 highest_yes_data = yes_data
                 highest_yes_labels = yes_labels
                 highest_no_data = None
@@ -165,31 +143,6 @@ class DT(object):
         tree = {'isLeaf': 0, 'split': feature_to_check,
                 'left': self.DTconstruct(X=highest_no_data, Y=highest_no_labels, cutoff=0),
                 'right': self.DTconstruct(X=highest_yes_data, Y=highest_yes_labels, cutoff=0)}
-=======
-        self.completed_features.append(feature_to_check)
-
-        # Set up variables for the tree
-        yes_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
-        yes_labels = np.array([])
-        no_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
-        no_labels = np.array([])
-        for row in xrange(X.shape[0]):
-            arr_row = np.array([X[row]])
-            if X[row][feature_to_check] >= 0.5:
-                # Append the row to the array horizontally
-                yes_data = np.concatenate((yes_data, arr_row), axis=0)
-                yes_labels = np.append(yes_labels, Y[row])
-            else:
-                # Append the row to the array horizontally
-                no_data = np.concatenate((no_data, arr_row), axis=0)
-                no_labels = np.append(no_labels, Y[row])
-
-
-        # Build our node, and set off the left and right nodes
-        tree = {'isLeaf': 0, 'split': feature_to_check,
-                'left': self.DTconstruct(X=no_data, Y=no_labels, cutoff=0),
-                'right': self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=0)}
->>>>>>> e9a7488ce01e28161a182ad14be4af1b10cec4da
         return tree
 
         # the Data comes in as X which is NxD and Y which is Nx1.
@@ -214,7 +167,7 @@ class DT(object):
         #    tree['split'] = 5
         #    tree['left'] = ...some other tree...
         #    tree['right'] = ...some other tree...
-        
+
     def DTpredict(self,model,X):
         # here we get a tree (in the same format as for DTconstruct) and
         # a single 1xD example that we need to predict with
@@ -224,32 +177,21 @@ class DT(object):
             return self.DTpredict(model['left'], X)
 
         return self.DTpredict(model['right'], X)
-    
+
     def DTdraw(self,model,level=0):
         indent = ' '
         if model is None:
             return
         print indent*4*level + 'isLeaf: ' + str(model['isLeaf'])
-<<<<<<< HEAD
         if model['isLeaf']==1:
-=======
-        if model['isLeaf'] == 1:
->>>>>>> e9a7488ce01e28161a182ad14be4af1b10cec4da
             print indent*4*level + 'Y: ' + str(model['label'])
             return
         print indent*4*level + 'split ' + str(model['split'])
         left_tree = str(self.DTdraw(model['left'],level+1))
         if left_tree != 'None':
-<<<<<<< HEAD
             #print model['left']
             print indent*4*level + 'left: ' + left_tree
         right_tree = str(self.DTdraw(model['right'],level+1))
         if right_tree != 'None':
             #print model['right']
             print indent*4*level + 'right: ' + right_tree
-=======
-            print indent*4*level + 'left: ' + left_tree
-        right_tree = str(self.DTdraw(model['right'],level+1))
-        if right_tree != 'None':
-            print indent*4*level + 'right: ' + right_tree
->>>>>>> e9a7488ce01e28161a182ad14be4af1b10cec4da
