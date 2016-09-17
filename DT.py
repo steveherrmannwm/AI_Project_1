@@ -117,8 +117,8 @@ class DT(object):
         # Get the votes from each feature that hasn't been touched
         for column in columns_to_search:
             votes = 0
-            arr_row = np.array([X[row]])
             for row in xrange(rows_to_search):
+                arr_row = np.array([X[row]])
                 # Weight the algorithm to favor features which are easier to find discrepancies
                 if X[row][column] >= 0.5:
                     votes += 1
