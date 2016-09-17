@@ -135,8 +135,8 @@ class DT(object):
                 max_votes = votes
                 highest_yes_data = yes_data
                 highest_yes_labels = yes_labels
-                highest_no_data = None
-                highest_no_labels = None
+                highest_no_data = no_data
+                highest_no_labels = no_labels
         self.completed_features.append(feature_to_check)
 
         # Build our node, and set off the left and right nodes

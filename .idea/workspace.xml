@@ -32,23 +32,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="397">
-              <caret line="89" column="5" selection-start-line="89" selection-start-column="5" selection-end-line="89" selection-end-column="5" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DT.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="DT.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/DT.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="254">
-              <caret line="128" column="24" selection-start-line="0" selection-start-column="0" selection-end-line="196" selection-end-column="57" />
+            <state relative-caret-position="492">
+              <caret line="138" column="45" selection-start-line="138" selection-start-column="45" selection-end-line="138" selection-end-column="45" />
               <folding>
-                <marker date="1474153442270" expanded="false" signature="115:165" ph="import ..." />
+                <marker date="1474153685529" expanded="false" signature="115:165" ph="import ..." />
               </folding>
             </state>
           </provider>
@@ -89,9 +79,9 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/DT.py" />
         <option value="$PROJECT_DIR$/Controller.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/DT.py" />
       </list>
     </option>
   </component>
@@ -386,12 +376,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/DT.py</url>
-          <line>138</line>
-        </line-breakpoint>
-      </breakpoints>
       <option name="time" value="1" />
     </breakpoint-manager>
     <watches-manager />
@@ -429,13 +413,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/DT.py">
+    <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="254">
-          <caret line="128" column="24" selection-start-line="0" selection-start-column="0" selection-end-line="196" selection-end-column="57" />
-          <folding>
-            <marker date="1474153442270" expanded="false" signature="115:165" ph="import ..." />
-          </folding>
+        <state relative-caret-position="363">
+          <caret line="87" column="23" selection-start-line="87" selection-start-column="23" selection-end-line="87" selection-end-column="23" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -449,11 +431,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
+    <entry file="file://$PROJECT_DIR$/DT.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="397">
-          <caret line="89" column="5" selection-start-line="89" selection-start-column="5" selection-end-line="89" selection-end-column="5" />
-          <folding />
+        <state relative-caret-position="492">
+          <caret line="138" column="45" selection-start-line="138" selection-start-column="45" selection-end-line="138" selection-end-column="45" />
+          <folding>
+            <marker date="1474153685529" expanded="false" signature="115:165" ph="import ..." />
+          </folding>
         </state>
       </provider>
     </entry>
