@@ -69,8 +69,13 @@ def dispImages(title,trX_images):
         plt.imshow(trX_images[i], cmap=plt.cm.get_cmap(plt.gray()))
         a.set_title('Image ' + str(i))
     plt.savefig('../figure1.png')
+<<<<<<< HEAD
     #plt.show()
     #raw_input('Press enter to continue...')
+=======
+    plt.show()
+    raw_input('Press enter to continue...')
+>>>>>>> e9a7488ce01e28161a182ad14be4af1b10cec4da
  
 def run_test(trX, trY,res_file):
     desired_dt20 = 0.78
