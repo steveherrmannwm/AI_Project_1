@@ -30,20 +30,19 @@ class DT(object):
 
         mode = mode.lower()
 
-        if(mode == 'name'):
+        if mode == 'name':
             return 'DT'
 
-        if(mode == 'train'):
+        if mode == 'train':
             if(len(X) < 2 or len(Y) < 1 or cutoff < 0):
                 print("Error: training requires three arguments: X, Y")
                 return 0
             sizeX = X.shape
             sizeY = Y.shape
             # WAS sizeX[0] - 1
-            if(sizeX[0]  != sizeY[0]):
+            if sizeX[0]  != sizeY[0]:
                 print("Error: there must be the same number of data points in X and Y")
                 return 0
-
             if len(sizeY) > 1 and sizeY[1] == 1:
                 Y = np.reshape(Y, (sizeY[1], sizeY[0]))
                 Y = Y[0]
@@ -51,11 +50,11 @@ class DT(object):
 
             return self.DTconstruct(X,Y,cutoff)
 
-        if(mode == 'predict'):
-            if(len(model) < 1 or len(test_case) < 1):
+        if mode == 'predict':
+            if len(model) < 1 or len(test_case) < 1:
                 print("Error: prediction requires two arguments: the model and X")
                 return 0
-            if('isLeaf' not in model.keys()):
+            if'isLeaf' not in model.keys():
                 print("Error: model does not appear to be a DT model")
                 return 0
 
@@ -73,7 +72,6 @@ class DT(object):
         print("Error: unknown DT mode: need train or predict")
 
     def DTconstruct(self, X, Y, cutoff):
-        print "BUILDING A TREE"
         # X COLUMNS ARE FEATURES
         # X ROWS ARE INDIVIDUAL DATA POINTS
         # Y IS WHAT EACH POINT SHOULD BE CLASSIFIED AS
@@ -101,43 +99,44 @@ class DT(object):
 
         print columns_to_search
         print rows_to_search
-        yes_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
-        yes_labels = np.array([])
-        no_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
-        no_labels = np.array([])
-        highest_yes_data = None
-        highest_yes_labels = None
-        highest_no_data = None
-        highest_no_labels = None
         # Get the votes from each feature that hasn't been touched
         for row in xrange(rows_to_search):
             for column in columns_to_search:
+                print row, column
                 votes = 0
-                arr_row = np.array([X[row]])
                 # Weight the algorithm to favor features which are easier to find discrepancies
                 if X[row][column] >= 0.5:
                     votes += 1
-                    yes_data = np.concatenate((yes_data, arr_row), axis=0)
-                    yes_labels = np.append(yes_labels, Y[row])
                 else:
                     votes -= 1
                     # Append the row to the array horizontally
-                    no_data = np.concatenate((no_data, arr_row), axis=0)
-                    no_labels = np.append(no_labels, Y[row])
+
             # Square to remove negative sign
             if votes ** 2 > max_votes:
                 feature_to_check = column
                 max_votes = votes ** 2
-                highest_yes_data = yes_data
-                highest_yes_labels = yes_labels
-                highest_no_data = no_data
-                highest_no_labels = no_labels
+
         self.completed_features.append(feature_to_check)
+
+        yes_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
+        yes_labels = np.array([])
+        no_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
+        no_labels = np.array([])
+
+        for row in xrange(rows_to_search):
+            arr_row = np.array([X[row]])
+            if X[row][feature_to_check] >= 0.5:
+                yes_data = np.concatenate((yes_data, arr_row), axis=0)
+                yes_labels = np.append(yes_labels, Y[row])
+            else:
+                no_data = np.concatenate((no_data, arr_row), axis=0)
+                no_labels = np.append(no_labels, Y[row])
 
         # Build our node, and set off the left and right nodes
         tree = {'isLeaf': 0, 'split': feature_to_check,
-                'left': self.DTconstruct(X=highest_no_data, Y=highest_no_labels, cutoff=cutoff - 1),
-                'right': self.DTconstruct(X=highest_yes_data, Y=highest_yes_labels, cutoff=cutoff - 1)}
+                'left': self.DTconstruct(X=no_data, Y=no_labels, cutoff=(cutoff - 1)),
+                'right': self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1))}
+
         return tree
 
         # the Data comes in as X which is NxD and Y which is Nx1.
@@ -168,6 +167,7 @@ class DT(object):
         # a single 1xD example that we need to predict with
         if model['isLeaf'] == 1:
             return model['label']
+
         if X[model['split']] < 0.5:
             return self.DTpredict(model['left'], X)
 

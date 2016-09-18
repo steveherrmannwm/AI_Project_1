@@ -74,11 +74,9 @@ class KNN(object):
         # model contains trainX which is NxD, trainY which is Nx1, K which is int. X is 1xD
         # We return a singe value 'y' which is the predicted class
         # print model
-
         # Set distance as negative, so we can replace later
         # This represents the furthest away of the nearest neighbors
         longest_dist = -1
-
         # Format is (Dist, Vote)
         nearest_neighbors = []
         accepting_neighbors = True
