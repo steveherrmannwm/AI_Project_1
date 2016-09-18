@@ -106,9 +106,10 @@ class DT(object):
             for column in columns_to_search:
                 print row, column
                 # Weight the algorithm to favor features which are easier to find discrepancies
-                votes[column] += 1
-                    # Append the row to the array horizontally
-        print votes
+                if X[row][column] >= 0.5:
+                    votes[column] += 1
+                else:
+                    votes[column] -= 1
         for key in votes:
             if votes[key] ** 2 > max_votes:
                 max_votes = votes[key] ** 2
