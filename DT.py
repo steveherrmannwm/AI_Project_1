@@ -110,9 +110,9 @@ class DT(object):
         highest_no_data = None
         highest_no_labels = None
         # Get the votes from each feature that hasn't been touched
-        for column in columns_to_search:
-            votes = 0
-            for row in xrange(rows_to_search):
+        for row in xrange(rows_to_search):
+            for column in columns_to_search:
+                votes = 0
                 arr_row = np.array([X[row]])
                 # Weight the algorithm to favor features which are easier to find discrepancies
                 if X[row][column] >= 0.5:
@@ -124,10 +124,10 @@ class DT(object):
                     # Append the row to the array horizontally
                     no_data = np.concatenate((no_data, arr_row), axis=0)
                     no_labels = np.append(no_labels, Y[row])
-            # ABS incase we get more negative votes
-            if abs(votes) > max_votes:
+            # Square to remove negative sign
+            if votes ** 2 > max_votes:
                 feature_to_check = column
-                max_votes = votes
+                max_votes = votes ** 2
                 highest_yes_data = yes_data
                 highest_yes_labels = yes_labels
                 highest_no_data = no_data
