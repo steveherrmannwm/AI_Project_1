@@ -18,7 +18,7 @@ class DT(object):
     def __init__(self):
         self.completed_features = []
 
-    def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), cutoff=None):
+    def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), cutoff=-1):
         '''
         usage is of the two following:
         learn = DT()
