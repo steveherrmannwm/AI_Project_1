@@ -177,16 +177,16 @@ class DT(object):
         indent = ' '
         if model is None:
             return
-        print indent*4*level + 'isLeaf: ' + str(model['isLeaf'])
+        print indent*4*level + 'isLeaf: ' + str(model['isLeaf']) + "|" + level
         if model['isLeaf']==1:
-            print indent*4*level + 'Y: ' + str(model['label'])
+            print indent*4*level + 'Y: ' + str(model['label']) + "|" + level
             return
-        print indent*4*level + 'split ' + str(model['split'])
+        print indent*4*level + 'split ' + str(model['split']) + "|" + level
         left_tree = str(self.DTdraw(model['left'],level+1))
         if left_tree != 'None':
             #print model['left']
-            print indent*4*level + 'left: ' + left_tree
+            print indent*4*level + 'left: ' + left_tree + "|" + level
         right_tree = str(self.DTdraw(model['right'],level+1))
         if right_tree != 'None':
             #print model['right']
-            print indent*4*level + 'right: ' + right_tree
+            print indent*4*level + 'right: ' + right_tree + "|" + level
