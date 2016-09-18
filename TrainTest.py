@@ -29,6 +29,7 @@ class TrainTest(object):
             print "model did not train"
             return 0
         output['model'] = model
+        print model
         self.learn.DTdraw(model)
         t1 = time.time()
         output['trainTime'] = t1-t0
