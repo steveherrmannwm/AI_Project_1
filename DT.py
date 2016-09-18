@@ -17,8 +17,8 @@ def most_common(lst):
 class DT(object):
     def __init__(self):
         self.completed_features = []
-        
-    def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), cutoff=0):
+
+    def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), cutoff=None):
         '''
         usage is of the two following:
         learn = DT()
@@ -29,10 +29,10 @@ class DT(object):
             model = {}
 
         mode = mode.lower()
-        
+
         if(mode == 'name'):
             return 'DT'
-        
+
         if(mode == 'train'):
             if(len(X) < 2 or len(Y) < 1 or cutoff < 0):
                 print("Error: training requires three arguments: X, Y")
@@ -78,12 +78,7 @@ class DT(object):
         # X ROWS ARE INDIVIDUAL DATA POINTS
         # Y IS WHAT EACH POINT SHOULD BE CLASSIFIED AS
         # Truncate our data to the cutoff if specified
-        if cutoff > 0:
-            X = X[:X.shape[0] * cutoff/100]
-            Y = Y[:Y.shape[0] * cutoff/100]
         # Have a standard guess in case we hit a case to end
-        print X.shape
-        print Y.shape
         guess = most_common(Y)
         # handle the case where all labels are the same
         if len(set(Y)) == 1:
@@ -94,7 +89,7 @@ class DT(object):
             return {"isLeaf": 1, "label": guess}
 
         # We've hit the cutoff, because we ignore cutoffs of 0 or below
-        if cutoff == 1:
+        if cutoff == 0:
             return {"isLeaf": 1, "label": guess}
 
         # Tally up our votes, so we can chose the next feature to branch on
@@ -141,8 +136,8 @@ class DT(object):
 
         # Build our node, and set off the left and right nodes
         tree = {'isLeaf': 0, 'split': feature_to_check,
-                'left': self.DTconstruct(X=highest_no_data, Y=highest_no_labels, cutoff=0),
-                'right': self.DTconstruct(X=highest_yes_data, Y=highest_yes_labels, cutoff=0)}
+                'left': self.DTconstruct(X=highest_no_data, Y=highest_no_labels, cutoff=cutoff - 1),
+                'right': self.DTconstruct(X=highest_yes_data, Y=highest_yes_labels, cutoff=cutoff - 1)}
         return tree
 
         # the Data comes in as X which is NxD and Y which is Nx1.

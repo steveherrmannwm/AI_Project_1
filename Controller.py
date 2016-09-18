@@ -40,7 +40,7 @@ def dispBanner(stage):
             for i in range(sizeX[1]):
                 newXdim += len(deX[0][i])
             deX = np.reshape(deX, (sizeX[0], newXdim))
-       
+
         return trX_images, trX, trY, deX, deY
     print'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
     print'********************************************************************'
@@ -59,10 +59,10 @@ def dispBanner(stage):
     return trX_images, trX, trY, deX,deY
 
 
-def dispImages(title,trX_images):         
+def dispImages(title,trX_images):
     print 'and display some digits from it....'
     print '\nClose the image to continue...'
-     
+
     fig = plt.figure()
     for i in range(8):
         a = fig.add_subplot(2,4,i+1)
@@ -71,19 +71,19 @@ def dispImages(title,trX_images):
     plt.savefig('../figure1.png')
     #plt.show()
     #raw_input('Press enter to continue...')
- 
+
 def run_test(trX, trY,res_file):
     desired_dt20 = 0.78
     desired_dt50 = 0.78
     desired_knn1 = 0.70
     desired_knn3 = 0.73
-    
+
     print '\n\nFirst, we run DT and KNN on the training/development data to '
     print 'ensure that we are getting roughly the right accuracies.'
     print 'We use the first 80% of the data as training, and the last'
     print '20% as test.'
-    
-    
+
+
     decTree = dt.DT()
     res = 1
 
@@ -94,7 +94,7 @@ def run_test(trX, trY,res_file):
     res += testRun.verifyAcc(acc['acc'], desired_dt20)
     print'\nTrainTime, TestTime', acc['trainTime'], acc['testTime']
     res_file.write('\nTrainTime, TestTime ' + str(acc['trainTime']) + ', ' + str(acc['testTime']))
- 
+
     print '\nDT (cutoff=50)...'
     res_file.write('\nDT (cutoff=50)')
     testRun = tt.TrainTest(decTree, trX[0:48000, :], trY[0:48000], trX[48001:60000, :], trY[48001:60000], 50)
@@ -102,7 +102,7 @@ def run_test(trX, trY,res_file):
     res += testRun.verifyAcc(acc['acc'], desired_dt50)
     print'\nTrainTime, TestTime', acc['trainTime'], acc['testTime']
     res_file.write('\nTrainTime, TestTime ' + str(acc['trainTime']) + ', ' + str(acc['testTime']))
-    
+
     knnModel = knn.KNN()
     print '\nKNN (K=1)'
     res_file.write('\nKNN (K=1)')
@@ -111,7 +111,7 @@ def run_test(trX, trY,res_file):
     res += testRun.verifyAcc(acc['acc'], desired_knn1)
     print'\nTrainTime, TestTime', acc['trainTime'], acc['testTime']
     res_file.write('\nTrainTime, TestTime ' + str(acc['trainTime']) + ', ' + str(acc['testTime']))
- 
+
     print '\nKNN (K=3)'
     res_file.write('\nKNN (K=3)')
     testRun = tt.TrainTest(knnModel, trX[0:8000, :], trY[0:8000], trX[8001:10001, :], trY[8001:10001], 3)
@@ -121,11 +121,11 @@ def run_test(trX, trY,res_file):
     res_file.write('\nTrainTime, TestTime ' + str(acc['trainTime']) + ', ' + str(acc['testTime']))
 
     raw_input('\nPress enter to continue...')
-    
+
     return
 
 def run_comps(learn,thresh,X,Y,X_test,Y_test,title,xlbl,figno):
-    accTr = [] 
+    accTr = []
     accTe = []
     for i in range(len(thresh)):
         print '\n', xlbl, thresh[i]
@@ -171,8 +171,8 @@ def compareModels(label1,label2,devX,devY,startno):
         if curr_errs.shape[0] > 40:
             curr_errs = curr_errs[np.random.permutation(curr_errs.shape[0]),:,:]
             curr_errs = curr_errs[0:40,:,:]
-        displayErrors(curr_errs,"Figure " + str(startno+i) + 
-                      ": Errors made by " + titles[i] + " models","../figure" + 
+        displayErrors(curr_errs,"Figure " + str(startno+i) +
+                      ": Errors made by " + titles[i] + " models","../figure" +
                       str(startno+i) + ".png")
     return 'done'
 
@@ -186,20 +186,21 @@ def displayErrors(errorList,title,figno):
         a.set_title('Image ' + str(i))
     plt.savefig(figno)
     plt.show()
-       
+
     raw_input('Press enter to continue...')
     return 0
- 
-   
+
+
 if __name__ == '__main__':
-        
+
     results = {}
     #Load the results.txt file to start where you stopped
-    res_file = open('results.txt','r')
+    res_file = open('./results.txt','r')
     content = res_file.readlines()
     res_file.close()
     print 'Found results.txt length =', len(content)
     i = 0
+    print content
     while i < len(content):
         if content[i] == '':
             continue
@@ -320,6 +321,4 @@ if __name__ == '__main__':
     
     res_file.close()
      
-    print 'Done' 
-
-    
+    print 'Done'
