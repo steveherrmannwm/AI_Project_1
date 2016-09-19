@@ -34,13 +34,13 @@ class DT(object):
             return 'DT'
 
         if mode == 'train':
-            if(len(X) < 2 or len(Y) < 1 or cutoff < 0):
+            if (len(X) < 2 or len(Y) < 1 or cutoff < 0):
                 print("Error: training requires three arguments: X, Y")
                 return 0
             sizeX = X.shape
             sizeY = Y.shape
             # WAS sizeX[0] - 1
-            if sizeX[0]  != sizeY[0]:
+            if sizeX[0] != sizeY[0]:
                 print("Error: there must be the same number of data points in X and Y")
                 return 0
             if len(sizeY) > 1 and sizeY[1] == 1:
@@ -48,25 +48,25 @@ class DT(object):
                 Y = Y[0]
                 sizeY = Y.shape
 
-            return self.DTconstruct(X,Y,cutoff)
+            return self.DTconstruct(X, Y, cutoff)
 
         if mode == 'predict':
             if len(model) < 1 or len(test_case) < 1:
                 print("Error: prediction requires two arguments: the model and X")
                 return 0
-            if'isLeaf' not in model.keys():
+            if 'isLeaf' not in model.keys():
                 print("Error: model does not appear to be a DT model")
                 return 0
 
-            #set up output
+            # set up output
             rowCol = test_case.shape
-            if(len(rowCol) < 2):
+            if (len(rowCol) < 2):
                 res = self.DTpredict(model, test_case)
             else:
                 N = rowCol[0]
                 res = np.zeros(N)
                 for n in range(N):
-                    ans = self.DTpredict(model, test_case[n,:])
+                    ans = self.DTpredict(model, test_case[n, :])
                     res[n] = ans
             return res
         print("Error: unknown DT mode: need train or predict")
@@ -101,7 +101,7 @@ class DT(object):
         print columns_to_search
         print rows_to_search
         # Get the votes from each feature that hasn't been touched
-        votes = {column:0 for column in columns_to_search}
+        votes = {column: 0 for column in columns_to_search}
         for row in xrange(rows_to_search):
             for column in columns_to_search:
                 print row, column
@@ -114,7 +114,7 @@ class DT(object):
             if votes[key] ** 2 > max_votes:
                 max_votes = votes[key] ** 2
                 feature_to_check = key
-            # Square to remove negative sign
+                # Square to remove negative sign
 
         self.completed_features.append(feature_to_check)
         # print feature_to_check
@@ -131,10 +131,13 @@ class DT(object):
         no_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
         no_labels = np.array([])
 
-        yes_data = np.concatenate((yes_data, yes_rows), axis=0)
-        yes_labels = np.concatenate((yes_labels, yes_label_list))
-        no_data = np.concatenate((no_data, no_rows), axis=0)
-        no_labels = np.concatenate((no_labels, no_label_list))
+        print yes_data, yes_rows
+        if len(yes_rows) > 0:
+            yes_data = np.concatenate((yes_data, yes_rows), axis=0)
+            yes_labels = np.concatenate((yes_labels, yes_label_list))
+        if len(no_rows) > 0:
+            no_data = np.concatenate((no_data, no_rows), axis=0)
+            no_labels = np.concatenate((no_labels, no_label_list))
 
         # Build our node, and set off the left and right nodes
         print "building our next tree"
@@ -167,7 +170,7 @@ class DT(object):
         #    tree['left'] = ...some other tree...
         #    tree['right'] = ...some other tree...
 
-    def DTpredict(self,model,X):
+    def DTpredict(self, model, X):
         # here we get a tree (in the same format as for DTconstruct) and
         # a single 1xD example that we need to predict with
         if model['isLeaf'] == 1:
@@ -178,20 +181,20 @@ class DT(object):
 
         return self.DTpredict(model['right'], X)
 
-    def DTdraw(self,model, level=0):
+    def DTdraw(self, model, level=0):
         indent = ' '
         if model is None:
             return
         # print indent*4*level + 'isLeaf: ' + str(model['isLeaf']) + "|" + level
-        if model['isLeaf']==1:
-            print indent*4*level + 'Y: ' + str(model['label']) + "|" + str(level)
+        if model['isLeaf'] == 1:
+            print indent * 4 * level + 'Y: ' + str(model['label']) + "|" + str(level)
             return
-        print indent*4*level + 'split ' + str(model['split']) + "|" + str(level)
-        left_tree = str(self.DTdraw(model['left'], level+1))
+        print indent * 4 * level + 'split ' + str(model['split']) + "|" + str(level)
+        left_tree = str(self.DTdraw(model['left'], level + 1))
         if left_tree != 'None':
-            #print model['left']
-            print indent*4*level + 'left: ' + left_tree + "|" + str(level)
-        right_tree = str(self.DTdraw(model['right'],level+1))
+            # print model['left']
+            print indent * 4 * level + 'left: ' + left_tree + "|" + str(level)
+        right_tree = str(self.DTdraw(model['right'], level + 1))
         if right_tree != 'None':
-            #print model['right']
-            print indent*4*level + 'right: ' + right_tree + "|" + str(level)
+            # print model['right']
+            print indent * 4 * level + 'right: ' + right_tree + "|" + str(level)
