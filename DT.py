@@ -6,6 +6,8 @@ This class is a decision tree implementation taken from Hal Daume.
 '''
 import numpy as np
 from collections import Counter
+from multiprocessing import Pool, TimeoutError
+import math
 
 
 def most_common(lst):
@@ -13,10 +15,11 @@ def most_common(lst):
         return Counter(lst).most_common(1)[0][0]
     return 0.0
 
-
 class DT(object):
     def __init__(self):
         self.completed_features = []
+        self.pool = Pool(processes=4)
+        self.entropy = {}
 
     def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), cutoff=-1):
         '''
@@ -78,13 +81,18 @@ class DT(object):
         # Truncate our data to the cutoff if specified
         # Have a standard guess in case we hit a case to end
         guess = most_common(Y)
+
+        # NEED TO FIGURE OUT HOW TO CALCULATE ENTROPY FOR THE SET
+
         # handle the case where all labels are the same
         print "STARTED BUILDING TREES"
         if len(set(Y)) == 1:
             return {"isLeaf": 1, "label": guess}
 
-        # We've run out of features, so finish the tree with our best guess
-        if len(self.completed_features) == X.shape[1]:
+        # We've run out of features, so finish the tree with our best guess.
+        print X
+        print X.shape
+        if len(self.completed_features) >= X.shape[1]:
             return {"isLeaf": 1, "label": guess}
 
         # We've hit the cutoff, because we ignore cutoffs of 0 or below
@@ -92,58 +100,55 @@ class DT(object):
             return {"isLeaf": 1, "label": guess}
 
         # Tally up our votes, so we can chose the next feature to branch on
-        max_votes = -1
         feature_to_check = -1
 
         columns_to_search = [x for x in xrange(X.shape[1]) if x not in self.completed_features]
         rows_to_search = X.shape[0]
 
-        print columns_to_search
-        print rows_to_search
         # Get the votes from each feature that hasn't been touched
-        votes = {column: 0 for column in columns_to_search}
+        votes = {column: 0.0 for column in columns_to_search}
         for row in xrange(rows_to_search):
             for column in columns_to_search:
                 print row, column
-                # Weight the algorithm to favor features which are easier to find discrepancies
                 if X[row][column] >= 0.5:
-                    votes[column] += 1
-                else:
-                    votes[column] -= 1
-        for key in votes:
-            if votes[key] ** 2 > max_votes:
-                max_votes = votes[key] ** 2
-                feature_to_check = key
-                # Square to remove negative sign
+                    votes[column] += 1.0
+        print votes
+        print "AYYY LMAO"
+        entropies = {key: (-1 * votes[key]/len(X) * math.log(votes[key]/len(X),2)) for key in votes}
+        print "entropies: ", entropies
 
         self.completed_features.append(feature_to_check)
         # print feature_to_check
         column = np.swapaxes(X, 1, 0)[feature_to_check]
+
         rows_to_split = np.where(column >= 0.5)[0]
+        no_rows_split = [x for x in xrange(len(column)) if x not in rows_to_split]
 
-        yes_rows = np.array([X[row] for row in rows_to_split])
-        yes_label_list = np.array([Y[row] for row in rows_to_split])
-        no_rows = np.array([X[row] for row in xrange(len(column)) if row not in rows_to_split])
-        no_label_list = np.array([Y[row] for row in xrange(len(column)) if row not in rows_to_split])
+        no_rows = np.array([X[row] for row in no_rows_split])
+        no_label_list = np.array([Y[row] for row in no_rows_split])
 
-        yes_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
-        yes_labels = np.array([])
-        no_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
+        no_data = np.array([], dtype="int16").reshape((0, X.shape[1]))
         no_labels = np.array([])
+        # This should hopefully prevent memory errors
+        if len(rows_to_split) > 0:
+            if len(no_rows) > 0:
+                no_data = np.concatenate((no_data, no_rows), axis=0)
+                no_labels = np.concatenate((no_labels, no_label_list))
 
-        print yes_data, yes_rows
-        if len(yes_rows) > 0:
-            yes_data = np.concatenate((yes_data, yes_rows), axis=0)
-            yes_labels = np.concatenate((yes_labels, yes_label_list))
-        if len(no_rows) > 0:
-            no_data = np.concatenate((no_data, no_rows), axis=0)
-            no_labels = np.concatenate((no_labels, no_label_list))
+            X = np.delete(X, [(row, feature_to_check) for row in no_rows_split], axis=0)
+            Y = np.delete(Y, no_rows_split)
+
+        else:
+            no_data = X
+            no_labels = Y
+            X = np.empty([0,1])
+            Y = np.empty([0])
 
         # Build our node, and set off the left and right nodes
         print "building our next tree"
         tree = {'isLeaf': 0, 'split': feature_to_check,
                 'left': self.DTconstruct(X=no_data, Y=no_labels, cutoff=(cutoff - 1)),
-                'right': self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1))}
+                'right': self.DTconstruct(X=X, Y=Y, cutoff=(cutoff - 1))}
 
         return tree
 
@@ -198,3 +203,12 @@ class DT(object):
         if right_tree != 'None':
             # print model['right']
             print indent * 4 * level + 'right: ' + right_tree + "|" + str(level)
+
+# train_data = np.array([[np.random.randint(2) for x in range(4)] for y in
+# range(100)])
+# train_lbls= np.array([np.random.randint(2) for x in range(100)])
+# decTree = DT()
+# print train_data
+# print train_lbls
+# model = decTree.res("train", X=train_data,Y=train_lbls,cutoff=0)
+# decTree.DTdraw(model)

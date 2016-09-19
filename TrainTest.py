@@ -42,6 +42,7 @@ class TrainTest(object):
         sizeY = Y.shape
         if len(sizeY) < 2:
             Y = np.reshape(Y, (sizeY[0],1))
+
         if(len(Y) == len(self.testY)):
             print Y, self.testY
             overlp = [Y == self.testY]
