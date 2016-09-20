@@ -101,7 +101,7 @@ class DT(object):
         # To calculate majority vote, take the label with the highest data gain from the yes data, and add it to the
         # label with the highest no data
         # Square to remove negative sign
-        print "votes: ", votes
+
         best_feature = -1
         for feature in votes:
             majority_yes_votes = 0
@@ -115,9 +115,6 @@ class DT(object):
                 best_feature = majority_yes_votes + majority_no_votes
                 feature_to_check = feature
 
-        print "FEATURE: ", feature_to_check , " ", best_feature
-        print "LABELS FOR THIS SET: ", Y
-        print "DATA FOR THIS SET: ", X
         self.completed_features.append(feature_to_check)
 
         yes_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
@@ -173,7 +170,7 @@ class DT(object):
         if model['isLeaf'] == 1:
             return model['label']
 
-        if X[model['split']] >= 0.5:
+        if X[model['split']] < 0.5:
             return self.DTpredict(model['left'], X)
 
         return self.DTpredict(model['right'], X)
