@@ -1,6 +1,6 @@
 # Ignore all XML created by PyCharm
 *.xml
-
+.idea/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -14,7 +14,7 @@ def distance(p1, p2):
 
 class KNN(object):
         
-    def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), cutoff=0):
+    def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), K=0, h_param = 0):
         '''
         usage is of the two following:
         learn = KNN()
@@ -29,26 +29,21 @@ class KNN(object):
             return 'KNN'
         
         if(mode == 'train'):
-            if(len(X) < 2 or len(Y) < 1 or cutoff < 1):
+            if(len(X) < 2 or len(Y) < 1 or K < 1):
                 print("Error: training requires three arguments: X, Y, and cutoff")
                 return 0
             sizeX = X.shape
             sizeY = Y.shape
             if(sizeX[0] != sizeY[0]):
                 print("Error: there must be the same number of data points in X and Y")
-                return
-
-            if len(sizeY) > 1 and sizeY[1] == 1:
-                Y = np.reshape(Y, (sizeY[1], sizeY[0]))
-                Y = Y[0]
-                sizeY = Y.shape
+                return 0
             if(len(sizeY) != 1):
                 print("Error: Y must have only 1 column")
                 return 0
-            if(cutoff not in range(1000)):
+            if(K not in range(1000)):
                 print("Error: cutoff must be a positive scalar")
                 return 0
-            res = {'X': X, 'Y': Y, 'K': cutoff}
+            res = {'X': X, 'Y': Y, 'K': K}
             return res
         
         if(mode == 'predict'):
@@ -65,7 +60,6 @@ class KNN(object):
                     print("Error: there must be the same number of features in the model and X")                    
                 res = self.KNNpredict(model, test_case)
             else:
-
                 if(sizeModel[1] != sizeX[1]):
                     print("Error: there must be the same number of features in the model and X")
                 N = sizeX[0]
@@ -113,3 +107,15 @@ class KNN(object):
                 votes[vote] = 1
         winner = max(votes.iteritems(), key=itemgetter(1))[0]
         return winner
+
+
+
+
+        # return model["Y"][nearest_neighbor]
+
+knn_alg = KNN()
+model = knn_alg.res( 'train' , X=np.array([[1,1], [0,0],[0,1],[1,0]]), Y=np.array([1,0,1,1]), K=3)
+
+answer = knn_alg.res( 'predict' , model=model, X=np.array([[0,0],[0,1],[1,0],[1,1]]), Y=np.array([0,1,1,1]),
+                      test_case=np.array([0,0]))
+print answer
