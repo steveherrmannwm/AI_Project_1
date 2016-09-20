@@ -135,9 +135,10 @@ class DT(object):
                 no_labels = np.append(no_labels, Y[row])
         # Build our node, and set off the left and right nodes
 
+        right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1))
         left_tree = self.DTconstruct(X=no_data, Y=no_labels, cutoff=(cutoff - 1))
-        right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1)
-                                      
+
+
         tree = {'isLeaf': 0, 'split': feature_to_check,
                 'left': left_tree, 'right': right_tree}
 
