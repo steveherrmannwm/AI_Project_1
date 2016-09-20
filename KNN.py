@@ -37,6 +37,12 @@ class KNN(object):
             if(sizeX[0] != sizeY[0]):
                 print("Error: there must be the same number of data points in X and Y")
                 return 0
+            print Y
+            print Y.shape
+            if len(Y.shape) > 1 and Y.shape[1] == 1:
+                Y = Y.flatten()
+                sizeY = Y.shape
+
             if(len(sizeY) != 1):
                 print("Error: Y must have only 1 column")
                 return 0
@@ -107,15 +113,3 @@ class KNN(object):
                 votes[vote] = 1
         winner = max(votes.iteritems(), key=itemgetter(1))[0]
         return winner
-
-
-
-
-        # return model["Y"][nearest_neighbor]
-
-knn_alg = KNN()
-model = knn_alg.res( 'train' , X=np.array([[1,1], [0,0],[0,1],[1,0]]), Y=np.array([1,0,1,1]), K=3)
-
-answer = knn_alg.res( 'predict' , model=model, X=np.array([[0,0],[0,1],[1,0],[1,1]]), Y=np.array([0,1,1,1]),
-                      test_case=np.array([0,0]))
-print answer
