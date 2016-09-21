@@ -9,11 +9,14 @@ from operator import itemgetter
 
 
 def distance(p1, p2):
-    return ((p1[1] - p2[1]) ** 2 + (p1[0]-p2[0]) ** 2)
+    if len(p1) == len(p2):
+        total_distance = sum([(num_1  - num_2) ** 2 for num_1, num_2 in zip(p1, p2)])
+    return total_distance
+
 
 
 class KNN(object):
-        
+
     def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), K=0, h_param = 0):
         '''
         usage is of the two following:
@@ -24,10 +27,10 @@ class KNN(object):
         if model is None:
             model = {}
         mode = mode.lower()
-        
+
         if(mode == 'name'):
             return 'KNN'
-        
+
         if(mode == 'train'):
             if(len(X) < 2 or len(Y) < 1 or K < 1):
                 print("Error: training requires three arguments: X, Y, and cutoff")
@@ -37,8 +40,6 @@ class KNN(object):
             if(sizeX[0] != sizeY[0]):
                 print("Error: there must be the same number of data points in X and Y")
                 return 0
-            print Y
-            print Y.shape
             if len(Y.shape) > 1 and Y.shape[1] == 1:
                 Y = Y.flatten()
                 sizeY = Y.shape
@@ -51,7 +52,7 @@ class KNN(object):
                 return 0
             res = {'X': X, 'Y': Y, 'K': K}
             return res
-        
+
         if(mode == 'predict'):
             if(len(model) < 1 or len(test_case) < 1):
                 print("Error: prediction requires two arguments: the model and X")
@@ -59,11 +60,11 @@ class KNN(object):
             if('K' not in model.keys() and 'X' not in model.keys() and 'Y' not in model.keys()):
                 print("Error: model does not appear to be a KNN model")
                 return 0
-            sizeModel = X.shape
+            sizeModel = model["X"].shape
             sizeX = test_case.shape
             if(len(sizeX) < 2):
                 if(sizeModel[1] != sizeX[0]):
-                    print("Error: there must be the same number of features in the model and X")                    
+                    print("Error: there must be the same number of features in the model and X")
                 res = self.KNNpredict(model, test_case)
             else:
                 if(sizeModel[1] != sizeX[1]):
@@ -75,41 +76,26 @@ class KNN(object):
                     res[n] = ans
             return res
         print("Error: unknown KNN mode: need train or predict")
-        
+
     def KNNpredict(self, model, test_case):
         # model contains trainX which is NxD, trainY which is Nx1, K which is int. X is 1xD
         # We return a singe value 'y' which is the predicted class
         # print model
         # Set distance as negative, so we can replace later
         # This represents the furthest away of the nearest neighbors
-        longest_dist = -1
-        # Format is (Dist, Vote)
-        nearest_neighbors = []
-        accepting_neighbors = True
-        for index, point in enumerate(model["X"]):
-            dist = distance(point, test_case)
-            if longest_dist > dist or accepting_neighbors:
-                if len(nearest_neighbors) >= model["K"]:
-                    # Retrieve the biggest distance currently, and then replace it
-                    biggest_distance = max(nearest_neighbors, key=itemgetter(0))
-                    nearest_neighbors[nearest_neighbors.index(biggest_distance)] = (dist, index)
-                    # Re calculate our longest_distance
-                    longest_dist = max(nearest_neighbors, key=itemgetter(0))[0]
-                else:
-                    # We can look up index later to save time
-                    nearest_neighbors.append((dist, index))
-                    # Stop adding new neighbors when we hit K and begin replacing
-                    if len(nearest_neighbors) >= model["K"]:
-                        accepting_neighbors = False
-                        longest_dist = max(nearest_neighbors, key=itemgetter(0))[0]
+        distances = sorted([(distance(model['X'][point], test_case), model['Y'][point])for point in
+                            xrange(len(model['X']))])
+        votes = {label: 0 for label in model['Y']}
 
-        # tally our votes up
-        votes = {}
-        for neighbor in nearest_neighbors:
-            vote = model["Y"][neighbor[1]]
-            if vote in votes:
-                votes[vote] += 1
-            else:
-                votes[vote] = 1
-        winner = max(votes.iteritems(), key=itemgetter(1))[0]
-        return winner
+        # handle the rare case where we have fewer points than our expected K
+        if model['K'] > len(distances):
+            print "Reducing K to the number of points in the set, may want to add more data points"
+            model['K'] = len(distances)
+
+        for k in xrange(model['K']):
+            votes[distances[k][1]] += 1
+
+        return sorted(votes.items(), key=itemgetter(1), reverse=True)[0][0]
+
+        #print distances
+
