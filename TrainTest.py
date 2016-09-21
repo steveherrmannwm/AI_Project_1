@@ -24,7 +24,7 @@ class TrainTest(object):
         output = {}
         print 'Training...'
         t0 = time.time()
-        model = self.learn.res('train', X=self.trainX, Y=self.trainY, cutoff=self.h_param)
+        model = self.learn.res('train', X=self.trainX, Y=self.trainY, h_param=self.h_param)
         if not isinstance(model, dict) or model is None:
             print "model did not train"
             return 0

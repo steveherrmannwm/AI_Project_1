@@ -9,6 +9,7 @@ from operator import itemgetter
 
 
 def distance(p1, p2):
+    total_distance = -1 
     if len(p1) == len(p2):
         total_distance = sum([(num_1  - num_2) ** 2 for num_1, num_2 in zip(p1, p2)])
     return total_distance

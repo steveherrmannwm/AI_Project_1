@@ -18,7 +18,7 @@ class DT(object):
     def __init__(self):
         self.completed_features = []
 
-    def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), cutoff=-1):
+    def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), h_param=-1):
         '''
         usage is of the two following:
         learn = DT()
@@ -34,7 +34,7 @@ class DT(object):
             return 'DT'
 
         if mode == 'train':
-            if(len(X) < 2 or len(Y) < 1 or cutoff < 0):
+            if(len(X) < 2 or len(Y) < 1 or h_param < 0):
                 print("Error: training requires three arguments: X, Y")
                 return 0
             sizeX = X.shape
@@ -48,7 +48,7 @@ class DT(object):
                 Y = Y[0]
                 sizeY = Y.shape
 
-            return self.DTconstruct(X,Y,cutoff)
+            return self.DTconstruct(X, Y, h_param)
 
         if mode == 'predict':
             if len(model) < 1 or len(test_case) < 1:
@@ -58,7 +58,7 @@ class DT(object):
                 print("Error: model does not appear to be a DT model")
                 return 0
 
-            #set up output
+            # set up output
             rowCol = test_case.shape
             if(len(rowCol) < 2):
                 res = self.DTpredict(model, test_case)
@@ -117,24 +117,31 @@ class DT(object):
 
         self.completed_features.append(feature_to_check)
 
+        column = np.swapaxes(X, 1, 0)[feature_to_check]
+        rows_to_split = np.where(column >= 0.5)[0]
+
+        yes_rows = np.array([X[row] for row in rows_to_split])
+        yes_label_list = np.array([Y[row] for row in rows_to_split])
+        no_rows = np.array([X[row] for row in xrange(len(column)) if row not in rows_to_split])
+        no_label_list = np.array([Y[row] for row in xrange(len(column)) if row not in rows_to_split])
+
+
         yes_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
         yes_labels = np.array([])
         no_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
         no_labels = np.array([])
+        np.where(X.swapaxes(1,0)[feature_to_check])
 
-        for row in xrange(rows_to_search):
-            arr_row = np.array([X[row]])
-            if X[row][feature_to_check] >= 0.5:
-                yes_data = np.concatenate((yes_data, arr_row), axis=0)
-                yes_labels = np.append(yes_labels, Y[row])
-            else:
-                no_data = np.concatenate((no_data, arr_row), axis=0)
-                no_labels = np.append(no_labels, Y[row])
+        if len(yes_rows) > 0:
+            yes_data = np.concatenate((yes_data, yes_rows), axis=0)
+            yes_labels = np.concatenate((yes_labels, yes_label_list))
+        if len(no_rows) > 0:
+            no_data = np.concatenate((no_data, no_rows), axis=0)
+            no_labels = np.concatenate((no_labels, no_label_list))
+
         # Build our node, and set off the left and right nodes
-
-        right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1))
         left_tree = self.DTconstruct(X=no_data, Y=no_labels, cutoff=(cutoff - 1))
-
+        right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1))
 
         tree = {'isLeaf': 0, 'split': feature_to_check,
                 'left': left_tree, 'right': right_tree}
