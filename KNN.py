@@ -9,16 +9,16 @@ from operator import itemgetter
 
 
 def distance(p1, p2):
-    total_distance = -1 
+    total_distance = -1
     if len(p1) == len(p2):
-        total_distance = sum([(num_1  - num_2) ** 2 for num_1, num_2 in zip(p1, p2)])
+        total_distance = sum([(int(num_1) - int(num_2)) ** 2 for num_1, num_2 in zip(p1, p2)])
     return total_distance
 
 
 
 class KNN(object):
 
-    def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), K=0, h_param = 0):
+    def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), h_param = 0):
         '''
         usage is of the two following:
         learn = KNN()
@@ -33,7 +33,7 @@ class KNN(object):
             return 'KNN'
 
         if(mode == 'train'):
-            if(len(X) < 2 or len(Y) < 1 or K < 1):
+            if(len(X) < 2 or len(Y) < 1 or h_param < 1):
                 print("Error: training requires three arguments: X, Y, and cutoff")
                 return 0
             sizeX = X.shape
@@ -48,10 +48,10 @@ class KNN(object):
             if(len(sizeY) != 1):
                 print("Error: Y must have only 1 column")
                 return 0
-            if(K not in range(1000)):
+            if(h_param not in range(1000)):
                 print("Error: cutoff must be a positive scalar")
                 return 0
-            res = {'X': X, 'Y': Y, 'K': K}
+            res = {'X': X, 'Y': Y, 'K': h_param}
             return res
 
         if(mode == 'predict'):
@@ -84,10 +84,11 @@ class KNN(object):
         # print model
         # Set distance as negative, so we can replace later
         # This represents the furthest away of the nearest neighbors
-        distances = sorted([(distance(model['X'][point], test_case), model['Y'][point])for point in
+        print "STARTING KNN"
+        distances = sorted([(distance(model['X'][point], test_case), model['Y'][point]) for point in
                             xrange(len(model['X']))])
-        votes = {label: 0 for label in model['Y']}
 
+        votes = {label: 0 for label in model['Y']}
         # handle the rare case where we have fewer points than our expected K
         if model['K'] > len(distances):
             print "Reducing K to the number of points in the set, may want to add more data points"
@@ -95,8 +96,6 @@ class KNN(object):
 
         for k in xrange(model['K']):
             votes[distances[k][1]] += 1
+            print votes
 
         return sorted(votes.items(), key=itemgetter(1), reverse=True)[0][0]
-
-        #print distances
-

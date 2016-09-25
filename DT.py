@@ -34,6 +34,7 @@ class DT(object):
             return 'DT'
 
         if mode == 'train':
+            self.completed_features = []
             if(len(X) < 2 or len(Y) < 1 or h_param < 0):
                 print("Error: training requires three arguments: X, Y")
                 return 0
@@ -46,8 +47,6 @@ class DT(object):
             if len(sizeY) > 1 and sizeY[1] == 1:
                 Y = np.reshape(Y, (sizeY[1], sizeY[0]))
                 Y = Y[0]
-                sizeY = Y.shape
-
             return self.DTconstruct(X, Y, h_param)
 
         if mode == 'predict':
@@ -72,6 +71,7 @@ class DT(object):
         print("Error: unknown DT mode: need train or predict")
 
     def DTconstruct(self, X, Y, cutoff):
+        #print cutoff
         # X COLUMNS ARE FEATURES
         # X ROWS ARE INDIVIDUAL DATA POINTS
         # Y IS WHAT EACH POINT SHOULD BE CLASSIFIED AS
@@ -79,15 +79,16 @@ class DT(object):
         # Have a standard guess in case we hit a case to end
         guess = most_common(Y)
         # handle the case where all labels are the same
+
         if len(set(Y)) == 1 or len(self.completed_features) == X.shape[1] or cutoff == 1:
             return {"isLeaf": 1, "label": guess}
 
         # Tally up our votes, so we can chose the next feature to branch on
         feature_to_check = -1
-
         columns_to_search = [x for x in xrange(X.shape[1]) if x not in self.completed_features]
         rows_to_search = X.shape[0]
         votes = {feature: {label: {"yes": 0, "no": 0} for label in Y} for feature in columns_to_search}
+
         # Get the votes from each feature that hasn't been touched
         for row in xrange(rows_to_search):
             label = Y[row]
@@ -125,10 +126,9 @@ class DT(object):
         no_rows = np.array([X[row] for row in xrange(len(column)) if row not in rows_to_split])
         no_label_list = np.array([Y[row] for row in xrange(len(column)) if row not in rows_to_split])
 
-
-        yes_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
+        yes_data = np.array([], dtype="int8").reshape((0, X.shape[1]))
         yes_labels = np.array([])
-        no_data = np.array([], dtype="int64").reshape((0, X.shape[1]))
+        no_data = np.array([], dtype="int8").reshape((0, X.shape[1]))
         no_labels = np.array([])
         np.where(X.swapaxes(1,0)[feature_to_check])
 

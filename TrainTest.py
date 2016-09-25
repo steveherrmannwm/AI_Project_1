@@ -29,7 +29,6 @@ class TrainTest(object):
             print "model did not train"
             return 0
         output['model'] = model
-        self.learn.DTdraw(model)
         t1 = time.time()
         output['trainTime'] = t1-t0
         print 'Testing...'
@@ -43,9 +42,7 @@ class TrainTest(object):
             Y = np.reshape(Y, (sizeY[0],1))
 
         if(len(Y) == len(self.testY)):
-            print Y, self.testY
             overlp = [Y == self.testY]
-            print overlp
             overlp_sum = sum(sum(overlp))
             output['acc'] = overlp_sum/(len(Y)*1.0)
             return output
