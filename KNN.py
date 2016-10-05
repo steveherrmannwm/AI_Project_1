@@ -84,7 +84,6 @@ class KNN(object):
         # print model
         # Set distance as negative, so we can replace later
         # This represents the furthest away of the nearest neighbors
-        print "STARTING KNN"
         distances = sorted([(distance(model['X'][point], test_case), model['Y'][point]) for point in
                             xrange(len(model['X']))])
 
@@ -96,6 +95,5 @@ class KNN(object):
 
         for k in xrange(model['K']):
             votes[distances[k][1]] += 1
-            print votes
 
         return sorted(votes.items(), key=itemgetter(1), reverse=True)[0][0]

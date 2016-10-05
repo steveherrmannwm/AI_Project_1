@@ -6,6 +6,7 @@ This class is a decision tree implementation taken from Hal Daume.
 '''
 import numpy as np
 from collections import Counter
+import math
 
 
 def most_common(lst):
@@ -71,7 +72,7 @@ class DT(object):
         print("Error: unknown DT mode: need train or predict")
 
     def DTconstruct(self, X, Y, cutoff):
-        #print cutoff
+
         # X COLUMNS ARE FEATURES
         # X ROWS ARE INDIVIDUAL DATA POINTS
         # Y IS WHAT EACH POINT SHOULD BE CLASSIFIED AS
@@ -82,12 +83,13 @@ class DT(object):
 
         if len(set(Y)) == 1 or len(self.completed_features) == X.shape[1] or cutoff == 1:
             return {"isLeaf": 1, "label": guess}
-
-        # Tally up our votes, so we can chose the next feature to branch on
-        feature_to_check = -1
+        # Find what feature we should select next
         columns_to_search = [x for x in xrange(X.shape[1]) if x not in self.completed_features]
         rows_to_search = X.shape[0]
-        votes = {feature: {label: {"yes": 0, "no": 0} for label in Y} for feature in columns_to_search}
+        #create the dict for holding the label counter dict once so we dont have to keep creating it
+        labels_count_dict = {label: 0.0 for label in Y}
+        votes = {feature: {"yes": labels_count_dict.copy(), "no": labels_count_dict.copy()} for feature in
+                 columns_to_search}
 
         # Get the votes from each feature that hasn't been touched
         for row in xrange(rows_to_search):
@@ -95,25 +97,46 @@ class DT(object):
             for column in columns_to_search:
                 # Weight the algorithm to favor features which are easier to find discrepancies
                 if X[row][column] >= 0.5:
-                    votes[column][label]["yes"] += 1
+                    votes[column]["yes"][label] += 1
                 else:
-                    votes[column][label]["no"] += 1
+                    votes[column]["no"][label] += 1
+
                     # Append the row to the array horizontally
         # To calculate majority vote, take the label with the highest data gain from the yes data, and add it to the
         # label with the highest no data
         # Square to remove negative sign
+        label_counts = {label: 0.0 for label in Y}
 
-        best_feature = -1
+        # simple way to get around filtering zeros out of np.bincount
+        # count up how many times each label occurs
+        for label in Y:
+            label_counts[label] += 1
+
+        set_entropy = []
+        # if a label is here it has to have a non-zero value
+        for label in label_counts:
+            proportion = label_counts[label]/len(Y)
+            set_entropy.append(-proportion * math.log(proportion, len(Y)))
+
+        set_entropy = sum(set_entropy)
+        feature_to_check = -1
+        best_entropy = -1
         for feature in votes:
-            majority_yes_votes = 0
-            majority_no_votes = 0
-            for label in votes[feature]:
-                if votes[feature][label]['yes'] > majority_yes_votes:
-                    majority_yes_votes = votes[feature][label]['yes']
-                if votes[feature][label]['no'] > majority_no_votes:
-                    majority_no_votes = votes[feature][label]['no']
-            if majority_yes_votes + majority_no_votes > best_feature:
-                best_feature = majority_yes_votes + majority_no_votes
+            feature_entropy = []
+            for split in votes[feature]:
+                branch_entropy = []
+                label_total = sum(votes[feature][split].values())
+                label_total = label_total if label_total > 0 else 1
+                for label in votes[feature][split]:
+                    proportion = votes[feature][split][label] / label_total
+                    proportion = proportion if proportion > 0 else 1
+                    entropy = -proportion * math.log(proportion, len(Y))
+                    branch_entropy.append(label_total/len(Y) * entropy)
+                branch_entropy = sum(branch_entropy)
+                feature_entropy.append(branch_entropy)
+            feature_entropy = sum(feature_entropy)
+            if set_entropy - feature_entropy > best_entropy:
+                best_entropy = set_entropy - feature_entropy
                 feature_to_check = feature
 
         self.completed_features.append(feature_to_check)
@@ -143,10 +166,8 @@ class DT(object):
         right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1))
         left_tree = self.DTconstruct(X=no_data, Y=no_labels, cutoff=(cutoff - 1))
 
-
         tree = {'isLeaf': 0, 'split': feature_to_check,
                 'left': left_tree, 'right': right_tree}
-
         return tree
 
         # the Data comes in as X which is NxD and Y which is Nx1.

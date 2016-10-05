@@ -9,7 +9,6 @@ import numpy as np
 
 
 if __name__ == '__main__':
-
     print 'running tests on DT and KNN'
 
     #This is the class example [mathy, test >= 80, project >= 80, early]
@@ -19,11 +18,13 @@ if __name__ == '__main__':
     deX = np.array([[0,1,0,0],[0,0,1,0],[0,1,1,1]])
     deY = np.array([[0],[1],[0]])
 
+    print dt
+
     decTree = dt.DT()
     print 'DT, cutoff=0'
     trainModel = decTree.res('train', X=trX, Y=trY, h_param=0)
     output = decTree.res('predict', model=trainModel, test_case=deX)
-
+    decTree.DTdraw(trainModel)
 
     print "PREDICTION: ", output
 
