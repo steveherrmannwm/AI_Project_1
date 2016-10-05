@@ -15,8 +15,6 @@ def most_common(lst):
 
 
 class DT(object):
-    def __init__(self):
-        self.completed_features = []
 
     def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), h_param=-1):
         '''
@@ -71,7 +69,6 @@ class DT(object):
         print("Error: unknown DT mode: need train or predict")
 
     def DTconstruct(self, X, Y, cutoff):
-        #print cutoff
         # X COLUMNS ARE FEATURES
         # X ROWS ARE INDIVIDUAL DATA POINTS
         # Y IS WHAT EACH POINT SHOULD BE CLASSIFIED AS
@@ -79,20 +76,19 @@ class DT(object):
         # Have a standard guess in case we hit a case to end
         guess = most_common(Y)
         # handle the case where all labels are the same
-
-        if len(set(Y)) == 1 or len(self.completed_features) == X.shape[1] or cutoff == 1:
+        if len(set(Y)) == 1 or X.shape[1] == 0 or cutoff == 1:
             return {"isLeaf": 1, "label": guess}
 
         # Tally up our votes, so we can chose the next feature to branch on
         feature_to_check = -1
-        columns_to_search = [x for x in xrange(X.shape[1]) if x not in self.completed_features]
+        columns_to_search = X.shape[1]
         rows_to_search = X.shape[0]
-        votes = {feature: {label: {"yes": 0, "no": 0} for label in Y} for feature in columns_to_search}
+        votes = {feature: {label: {"yes": 0, "no": 0} for label in Y} for feature in xrange(columns_to_search)}
 
         # Get the votes from each feature that hasn't been touched
         for row in xrange(rows_to_search):
             label = Y[row]
-            for column in columns_to_search:
+            for column in xrange(columns_to_search):
                 # Weight the algorithm to favor features which are easier to find discrepancies
                 if X[row][column] >= 0.5:
                     votes[column][label]["yes"] += 1
@@ -115,9 +111,6 @@ class DT(object):
             if majority_yes_votes + majority_no_votes > best_feature:
                 best_feature = majority_yes_votes + majority_no_votes
                 feature_to_check = feature
-
-        self.completed_features.append(feature_to_check)
-
         column = np.swapaxes(X, 1, 0)[feature_to_check]
         rows_to_split = np.where(column >= 0.5)[0]
 
@@ -138,6 +131,10 @@ class DT(object):
         if len(no_rows) > 0:
             no_data = np.concatenate((no_data, no_rows), axis=0)
             no_labels = np.concatenate((no_labels, no_label_list))
+
+        # Remove our feature column from the remaining datasets.
+        yes_data = np.delete(yes_data,feature_to_check, 1)
+        no_data = np.delete(no_data, feature_to_check, 1)
 
         # Build our node, and set off the left and right nodes
         right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1))
@@ -178,7 +175,7 @@ class DT(object):
         if model['isLeaf'] == 1:
             return model['label']
 
-        if X[model['split']] < 0.5:
+        if X[model['split']] >= 0.5:
             return self.DTpredict(model['left'], X)
 
         return self.DTpredict(model['right'], X)
