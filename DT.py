@@ -9,7 +9,7 @@ from collections import Counter
 
 
 def most_common(lst):
-    if lst.size > 0:
+    if len(lst):
         return Counter(lst).most_common(1)[0][0]
     return 0.0
 
@@ -32,7 +32,6 @@ class DT(object):
             return 'DT'
 
         if mode == 'train':
-            self.completed_features = []
             if(len(X) < 2 or len(Y) < 1 or h_param < 0):
                 print("Error: training requires three arguments: X, Y")
                 return 0
@@ -75,21 +74,20 @@ class DT(object):
         # Truncate our data to the cutoff if specified
         # Have a standard guess in case we hit a case to end
         guess = most_common(Y)
-
         # handle the case where all labels are the same
         if len(set(Y)) == 1 or 0 in X.shape or cutoff == 1:
             return {"isLeaf": 1, "label": guess}
 
         # Tally up our votes, so we can chose the next feature to branch on
         feature_to_check = -1
-        columns_to_search = X.shape[1]
+        columns_to_search = xrange(X.shape[1])
         rows_to_search = X.shape[0]
-        votes = {feature: {label: {"yes": 0, "no": 0} for label in Y} for feature in xrange(columns_to_search)}
+        votes = {feature: {label: {"yes": 0, "no": 0} for label in Y} for feature in columns_to_search}
 
         # Get the votes from each feature that hasn't been touched
         for row in xrange(rows_to_search):
             label = Y[row]
-            for column in xrange(columns_to_search):
+            for column in columns_to_search:
                 # Weight the algorithm to favor features which are easier to find discrepancies
                 if X[row][column] >= 0.5:
                     votes[column][label]["yes"] += 1
@@ -112,6 +110,7 @@ class DT(object):
             if majority_yes_votes + majority_no_votes > best_feature:
                 best_feature = majority_yes_votes + majority_no_votes
                 feature_to_check = feature
+
         column = np.swapaxes(X, 1, 0)[feature_to_check]
         rows_to_split = np.where(column >= 0.5)[0]
 
@@ -133,14 +132,25 @@ class DT(object):
             no_data = np.concatenate((no_data, no_rows), axis=0)
             no_labels = np.concatenate((no_labels, no_label_list))
 
-        # Remove our feature column from the remaining datasets.
-        yes_data = np.delete(yes_data,feature_to_check, 1)
+        yes_data = np.delete(yes_data, feature_to_check, 1)
         no_data = np.delete(no_data, feature_to_check, 1)
 
-        # Build our node, and set off the left and right nodes
-        right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1))
-        left_tree = self.DTconstruct(X=no_data, Y=no_labels, cutoff=(cutoff - 1))
-
+        # Handle the case where we have no more data in one of the groups, and should stop splitting
+        if 0 in yes_data.shape or 0 in no_data.shape:
+            if 0 in yes_data:
+                best_label = most_common(no_labels)
+                second_label = most_common([label for label in no_labels if label != best_label])
+                right_tree = {"isLeaf": 1, 'label': second_label}
+                left_tree = {"isLeaf": 1, 'label': best_label}
+            else:
+                best_label = most_common(yes_labels)
+                second_label = most_common([label for label in yes_labels if label != best_label])
+                right_tree = {"isLeaf": 1, 'label': best_label}
+                left_tree = {"isLeaf": 1, 'label': second_label}
+        else:
+            # Build our node, and set off the left and right nodes
+            right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1))
+            left_tree = self.DTconstruct(X=no_data, Y=no_labels, cutoff=(cutoff - 1))
 
         tree = {'isLeaf': 0, 'split': feature_to_check,
                 'left': left_tree, 'right': right_tree}
