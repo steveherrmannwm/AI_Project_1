@@ -95,7 +95,7 @@ class DT(object):
             label = Y[row]
             for column in xrange(columns_to_search):
                 # Weight the algorithm to favor features which are easier to find discrepancies
-                if X[row][column] >= 50:
+                if X[row][column] >= 0.5:
                     votes[column]["yes"][label] += 1
                 else:
                     votes[column]["no"][label] += 1
@@ -138,7 +138,7 @@ class DT(object):
                 best_entropy = set_entropy - feature_entropy
                 feature_to_check = feature
         column = np.swapaxes(X, 1, 0)[feature_to_check]
-        rows_to_split = np.where(column >= 50)[0]
+        rows_to_split = np.where(column >= 0.5)[0]
 
         yes_rows = np.array([X[row] for row in rows_to_split])
         yes_label_list = np.array([Y[row] for row in rows_to_split])
@@ -200,7 +200,7 @@ class DT(object):
         if model['isLeaf'] == 1:
             return model['label']
 
-        if X[model['split']] >= 50:
+        if X[model['split']] >= 0.5:
             return self.DTpredict(model['left'], X)
 
         return self.DTpredict(model['right'], X)
