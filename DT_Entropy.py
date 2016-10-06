@@ -72,8 +72,6 @@ class DT(object):
         print("Error: unknown DT mode: need train or predict")
 
     def DTconstruct(self, X, Y, cutoff):
-        print X
-        print X.shape
         # X COLUMNS ARE FEATURES
         # X ROWS ARE INDIVIDUAL DATA POINTS
         # Y IS WHAT EACH POINT SHOULD BE CLASSIFIED AS
@@ -82,7 +80,7 @@ class DT(object):
         guess = most_common(Y)
         # handle the case where all labels are the same
 
-        if len(set(Y)) == 1 or X.shape[1] == 0 or cutoff == 1:
+        if len(set(Y)) == 1 or 0 in X.shape or cutoff == 1:
             return {"isLeaf": 1, "label": guess}
         # Find what feature we should select next
         columns_to_search = X.shape[1]
@@ -97,7 +95,7 @@ class DT(object):
             label = Y[row]
             for column in xrange(columns_to_search):
                 # Weight the algorithm to favor features which are easier to find discrepancies
-                if X[row][column] >= 0.5:
+                if X[row][column] >= 50:
                     votes[column]["yes"][label] += 1
                 else:
                     votes[column]["no"][label] += 1
@@ -139,9 +137,8 @@ class DT(object):
             if set_entropy - feature_entropy > best_entropy:
                 best_entropy = set_entropy - feature_entropy
                 feature_to_check = feature
-
         column = np.swapaxes(X, 1, 0)[feature_to_check]
-        rows_to_split = np.where(column >= 0.5)[0]
+        rows_to_split = np.where(column >= 50)[0]
 
         yes_rows = np.array([X[row] for row in rows_to_split])
         yes_label_list = np.array([Y[row] for row in rows_to_split])
@@ -152,7 +149,7 @@ class DT(object):
         yes_labels = np.array([])
         no_data = np.array([], dtype="int8").reshape((0, X.shape[1]))
         no_labels = np.array([])
-        np.where(X.swapaxes(1,0)[feature_to_check])
+        np.where(X.swapaxes(1, 0)[feature_to_check])
 
         if len(yes_rows) > 0:
             yes_data = np.concatenate((yes_data, yes_rows), axis=0)
@@ -162,21 +159,23 @@ class DT(object):
             no_labels = np.concatenate((no_labels, no_label_list))
 
         # Remove our feature column from the remaining datasets.
-        yes_data = np.delete(yes_data,feature_to_check, 1)
+        yes_data = np.delete(yes_data, feature_to_check, 1)
         no_data = np.delete(no_data, feature_to_check, 1)
+
         # Build our node, and set off the left and right nodes
         right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1))
         left_tree = self.DTconstruct(X=no_data, Y=no_labels, cutoff=(cutoff - 1))
 
         tree = {'isLeaf': 0, 'split': feature_to_check,
                 'left': left_tree, 'right': right_tree}
+
         return tree
 
         # the Data comes in as X which is NxD and Y which is Nx1.
         # cutoff is a scalar value. We should stop splitting when N is <= cutoff
         #
         # features (X) may not be binary... you should *threshold* them at
-        # 0.5, so that anything < 0.5 is a "0" and anything >= 0.5 is a "1"
+        # 30, so that anything < 30 is a "0" and anything >= 30 is a "1"
         #
         # we want to return a *tree*. the way we represent this in our model
         # is that the tree is a Python dictionary.
@@ -201,7 +200,7 @@ class DT(object):
         if model['isLeaf'] == 1:
             return model['label']
 
-        if X[model['split']] >= 0.5:
+        if X[model['split']] >= 50:
             return self.DTpredict(model['left'], X)
 
         return self.DTpredict(model['right'], X)

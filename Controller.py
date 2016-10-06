@@ -3,7 +3,7 @@ Created on Aug 28, 2016
 
 @author: km_dh
 '''
-import DT as dt
+import DT_Entropy as dt
 import KNN as knn
 import numpy as np
 #from PIL import  Image

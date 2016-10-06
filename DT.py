@@ -75,8 +75,9 @@ class DT(object):
         # Truncate our data to the cutoff if specified
         # Have a standard guess in case we hit a case to end
         guess = most_common(Y)
+
         # handle the case where all labels are the same
-        if len(set(Y)) == 1 or X.shape[1] == 0 or cutoff == 1:
+        if len(set(Y)) == 1 or 0 in X.shape or cutoff == 1:
             return {"isLeaf": 1, "label": guess}
 
         # Tally up our votes, so we can chose the next feature to branch on
@@ -90,7 +91,7 @@ class DT(object):
             label = Y[row]
             for column in xrange(columns_to_search):
                 # Weight the algorithm to favor features which are easier to find discrepancies
-                if X[row][column] >= 0.5:
+                if X[row][column] >= 50:
                     votes[column][label]["yes"] += 1
                 else:
                     votes[column][label]["no"] += 1
@@ -112,7 +113,7 @@ class DT(object):
                 best_feature = majority_yes_votes + majority_no_votes
                 feature_to_check = feature
         column = np.swapaxes(X, 1, 0)[feature_to_check]
-        rows_to_split = np.where(column >= 0.5)[0]
+        rows_to_split = np.where(column >= 50)[0]
 
         yes_rows = np.array([X[row] for row in rows_to_split])
         yes_label_list = np.array([Y[row] for row in rows_to_split])
@@ -150,7 +151,7 @@ class DT(object):
         # cutoff is a scalar value. We should stop splitting when N is <= cutoff
         #
         # features (X) may not be binary... you should *threshold* them at
-        # 0.5, so that anything < 0.5 is a "0" and anything >= 0.5 is a "1"
+        # 50, so that anything < 50 is a "0" and anything >= 50 is a "1"
         #
         # we want to return a *tree*. the way we represent this in our model
         # is that the tree is a Python dictionary.
@@ -175,7 +176,7 @@ class DT(object):
         if model['isLeaf'] == 1:
             return model['label']
 
-        if X[model['split']] >= 0.5:
+        if X[model['split']] >= 50:
             return self.DTpredict(model['left'], X)
 
         return self.DTpredict(model['right'], X)
