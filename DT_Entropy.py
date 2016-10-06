@@ -83,8 +83,8 @@ class DT(object):
         columns_to_search = xrange(X.shape[1])
         rows_to_search = X.shape[0]
         #create the dict for holding the label counter dict once so we dont have to keep creating it
-        labels_count_dict = {label: 0.0 for label in Y}
-        votes = {feature: {"yes": labels_count_dict.copy(), "no": labels_count_dict.copy()} for feature in
+        list_zeros = [0.0 for label in Y]
+        votes = {feature: {"yes": dict(zip(Y, list_zeros)), "no": dict(zip(Y, list_zeros))} for feature in
                  columns_to_search}
 
         # Get the votes from each feature that hasn't been touched
