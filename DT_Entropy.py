@@ -38,7 +38,6 @@ class DT(object):
                 return 0
             sizeX = X.shape
             sizeY = Y.shape
-            # WAS sizeX[0] - 1
             if sizeX[0]  != sizeY[0]:
                 print("Error: there must be the same number of data points in X and Y")
                 return 0
@@ -68,23 +67,25 @@ class DT(object):
             return res
         print("Error: unknown DT mode: need train or predict")
 
-    def DTconstruct(self, X, Y, cutoff):
+    def DTconstruct(self, X, Y, cutoff, completed_features=None):
         # X COLUMNS ARE FEATURES
         # X ROWS ARE INDIVIDUAL DATA POINTS
         # Y IS WHAT EACH POINT SHOULD BE CLASSIFIED AS
         # Truncate our data to the cutoff if specified
         # Have a standard guess in case we hit a case to end
+        if completed_features is None:
+            completed_features = []
         guess = most_common(Y)
         # handle the case where all labels are the same
 
-        if len(set(Y)) == 1 or 0 in X.shape or cutoff == 1:
+        if len(set(Y)) == 1 or len(completed_features) == X.shape[1] - 1 or cutoff == 1:
             return {"isLeaf": 1, "label": guess}
         # Find what feature we should select next
-        columns_to_search = xrange(X.shape[1])
+        columns_to_search = [x for x in xrange(X.shape[1]) if x not in completed_features]
         rows_to_search = X.shape[0]
-        #create the dict for holding the label counter dict once so we dont have to keep creating it
-        list_zeros = [0.0 for label in Y]
-        votes = {feature: {"yes": dict(zip(Y, list_zeros)), "no": dict(zip(Y, list_zeros))} for feature in
+        # create the dict for holding the label counter dict once so we dont have to keep creating it
+        labels_count_dict = {label: 0.0 for label in Y}
+        votes = {feature: {"yes": labels_count_dict.copy(), "no": labels_count_dict.copy()} for feature in
                  columns_to_search}
 
         # Get the votes from each feature that hasn't been touched
@@ -111,8 +112,8 @@ class DT(object):
         set_entropy = []
         # if a label is here it has to have a non-zero value
         for label in label_counts:
-            proportion = label_counts[label]/len(Y)
-            set_entropy.append(-proportion * math.log(proportion, len(Y)))
+            proportion = label_counts[label] / len(Y)
+            set_entropy.append(-proportion * math.log(proportion, 2))
 
         set_entropy = sum(set_entropy)
         feature_to_check = -1
@@ -126,8 +127,8 @@ class DT(object):
                 for label in votes[feature][split]:
                     proportion = votes[feature][split][label] / label_total
                     proportion = proportion if proportion > 0 else 1
-                    entropy = -proportion * math.log(proportion, len(Y))
-                    branch_entropy.append(label_total/len(Y) * entropy)
+                    entropy = -proportion * math.log(proportion, 2)
+                    branch_entropy.append(label_total / len(Y) * entropy)
                 branch_entropy = sum(branch_entropy)
                 feature_entropy.append(branch_entropy)
             feature_entropy = sum(feature_entropy)
@@ -135,51 +136,31 @@ class DT(object):
                 best_entropy = set_entropy - feature_entropy
                 feature_to_check = feature
 
+        if best_entropy == 0:
+            return {'isLeaf': 1, 'label': guess}
+
         column = np.swapaxes(X, 1, 0)[feature_to_check]
-        rows_to_split = np.where(column >= 0.5)[0]
+        yes_rows = np.where(column >= 0.5)[0]
+        no_rows = [x for x in xrange(X.shape[0]) if x not in yes_rows]
 
-        yes_rows = np.array([X[row] for row in rows_to_split])
-        yes_label_list = np.array([Y[row] for row in rows_to_split])
-        no_rows = np.array([X[row] for row in xrange(len(column)) if row not in rows_to_split])
-        no_label_list = np.array([Y[row] for row in xrange(len(column)) if row not in rows_to_split])
+        yes_data = np.take(X, yes_rows, 0)
+        yes_labels = np.take(Y, yes_rows)
+        no_data = np.take(X, no_rows, 0)
+        no_labels = np.take(Y, no_rows)
 
-        yes_data = np.array([], dtype="int8").reshape((0, X.shape[1]))
-        yes_labels = np.array([])
-        no_data = np.array([], dtype="int8").reshape((0, X.shape[1]))
-        no_labels = np.array([])
-        np.where(X.swapaxes(1, 0)[feature_to_check])
+        completed_features.append(feature_to_check)
 
-        if len(yes_rows) > 0:
-            yes_data = np.concatenate((yes_data, yes_rows), axis=0)
-            yes_labels = np.concatenate((yes_labels, yes_label_list))
-        if len(no_rows) > 0:
-            no_data = np.concatenate((no_data, no_rows), axis=0)
-            no_labels = np.concatenate((no_labels, no_label_list))
+        # Build our node, and set off the left and right nodes
+        left_tree = self.DTconstruct(X=no_data, Y=no_labels, cutoff=(cutoff - 1), completed_features=completed_features)
+        right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1),
+                                      completed_features=completed_features)
 
-        yes_data = np.delete(yes_data, feature_to_check, 1)
-        no_data = np.delete(no_data, feature_to_check, 1)
-
-        # Handle the case where we have no more data in one of the groups, and should stop splitting
-        if 0 in yes_data.shape or 0 in no_data.shape:
-            if 0 in yes_data:
-                best_label = most_common(no_labels)
-                second_label = most_common([label for label in no_labels if label != best_label])
-                right_tree = {"isLeaf": 1, 'label': second_label}
-                left_tree = {"isLeaf": 1, 'label': best_label}
-            else:
-                best_label = most_common(yes_labels)
-                second_label = most_common([label for label in yes_labels if label != best_label])
-                right_tree = {"isLeaf": 1, 'label': best_label}
-                left_tree = {"isLeaf": 1, 'label': second_label}
-        else:
-            # Build our node, and set off the left and right nodes
-            right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1))
-            left_tree = self.DTconstruct(X=no_data, Y=no_labels, cutoff=(cutoff - 1))
 
         tree = {'isLeaf': 0, 'split': feature_to_check,
                 'left': left_tree, 'right': right_tree}
 
         return tree
+
 
         # the Data comes in as X which is NxD and Y which is Nx1.
         # cutoff is a scalar value. We should stop splitting when N is <= cutoff
@@ -204,13 +185,13 @@ class DT(object):
         #    tree['left'] = ...some other tree...
         #    tree['right'] = ...some other tree...
 
-    def DTpredict(self,model,X):
+    def DTpredict(self, model, X):
         # here we get a tree (in the same format as for DTconstruct) and
         # a single 1xD example that we need to predict with
         if model['isLeaf'] == 1:
             return model['label']
 
-        if X[model['split']] >= 0.5:
+        if X[model['split']] < 0.5:
             return self.DTpredict(model['left'], X)
 
         return self.DTpredict(model['right'], X)

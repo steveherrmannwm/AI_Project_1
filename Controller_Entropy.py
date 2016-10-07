@@ -3,10 +3,10 @@ Created on Aug 28, 2016
 
 @author: km_dh
 '''
-import DT as dt
+import DT_Entropy as dt
 import KNN as knn
 import numpy as np
-#from PIL import Image
+#from PIL import  Image
 import subprocess
 import matplotlib.pyplot as plt
 import MNISTcontrol as ms
@@ -231,7 +231,6 @@ if __name__ == '__main__':
                     p = subprocess.Popen('display',trX_images[j])
                 raw_input('Press enter to continue...')
             res_file.write('\n' + disp + '\ndone')
-
 
         base = 'baseline'+data_types[i]
         if base not in results.keys():
