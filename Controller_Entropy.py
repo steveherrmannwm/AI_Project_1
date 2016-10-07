@@ -6,7 +6,7 @@ Created on Aug 28, 2016
 import DT_Entropy as dt
 import KNN as knn
 import numpy as np
-#from PIL import  Image
+#from PIL import Image
 import subprocess
 import matplotlib.pyplot as plt
 import MNISTcontrol as ms
@@ -15,15 +15,21 @@ from sklearn.datasets.twenty_newsgroups import fetch_20newsgroups
 class Controller(object):
     pass
 
+
 def dispBanner(stage):
     if stage == 'MNIST':
         print '************************************************************************'
         print '**  MNIST DIGITS EXPERIMENTS'
         print '************************************************************************'
-            
+
         print 'First we load the data '
         dataset = ms.MNISTcontrol("./MNIST")
         trX_images, trY = dataset.load_mnist('training')
+        trX_images = trX_images[np.logical_or(np.equal(trY[:, 0], 7), np.equal(trY[:, 0], 4))]
+
+        trY = trY[np.logical_or(np.equal(trY[:, 0], 7), np.equal(trY[:, 0], 4))]
+
+        print 'classes', np.unique(trY)
         # we need x to be 1d
         sizeX = trX_images.shape
         if len(sizeX) > 2:
@@ -31,8 +37,11 @@ def dispBanner(stage):
             for i in range(sizeX[1]):
                 newXdim += len(trX_images[0][i])
             trX = np.reshape(trX_images, (sizeX[0], newXdim))
-            #read in test data
+            # read in test data
         deX, deY = dataset.load_mnist('test')
+        deX = deX[np.logical_or(np.equal(deY[:, 0], 7), np.equal(deY[:, 0], 4))]
+
+        deY = deY[np.logical_or(np.equal(deY[:, 0], 7), np.equal(deY[:, 0], 4))]
         # we need x to be 1d
         sizeX = deX.shape
         if len(sizeX) > 2:
@@ -47,16 +56,16 @@ def dispBanner(stage):
     print'** 20 NEWSGROUPS EXPERIMENTS'
     print'********************************************************************\n'
     print 'First we load the data \n'
-    cats = ['sci.space','rec.sport.baseball']
-    news_docs = fetch_20newsgroups(subset='train',categories=cats)
-    news_test = fetch_20newsgroups(subset='test',categories=cats)
+    cats = ['sci.space', 'rec.sport.baseball']
+    news_docs = fetch_20newsgroups(subset='train', categories=cats)
+    news_test = fetch_20newsgroups(subset='test', categories=cats)
     trX_images = news_docs.filenames
     trX = news_docs.data
     trY = news_docs.target
     deX = news_test.data
     deY = news_test.target
     raw_input('Press enter to continue...')
-    return trX_images, trX, trY, deX,deY
+    return trX_images, trX, trY, deX, deY
 
 
 def dispImages(title,trX_images):
@@ -69,8 +78,8 @@ def dispImages(title,trX_images):
         plt.imshow(trX_images[i], cmap=plt.cm.get_cmap(plt.gray()))
         a.set_title('Image ' + str(i))
     plt.savefig('../figure1.png')
-    #plt.show()
-    #raw_input('Press enter to continue...')
+    plt.show()
+    raw_input('Press enter to continue...')
 
 def run_test(trX, trY,res_file):
     desired_dt20 = 0.78

@@ -24,6 +24,11 @@ def dispBanner(stage):
         print 'First we load the data '
         dataset = ms.MNISTcontrol("./MNIST")
         trX_images, trY = dataset.load_mnist('training')
+        trX_images = trX_images[np.logical_or(np.equal(trY[:, 0], 7), np.equal(trY[:, 0], 4))]
+
+        trY = trY[np.logical_or(np.equal(trY[:, 0], 7), np.equal(trY[:, 0], 4))]
+
+        print 'classes', np.unique(trY)
         # we need x to be 1d
         sizeX = trX_images.shape
         if len(sizeX) > 2:
@@ -33,6 +38,9 @@ def dispBanner(stage):
             trX = np.reshape(trX_images, (sizeX[0], newXdim))
             #read in test data
         deX, deY = dataset.load_mnist('test')
+        deX = deX[np.logical_or(np.equal(deY[:, 0], 7), np.equal(deY[:, 0], 4))]
+
+        deY = deY[np.logical_or(np.equal(deY[:, 0], 7), np.equal(deY[:, 0], 4))]
         # we need x to be 1d
         sizeX = deX.shape
         if len(sizeX) > 2:
