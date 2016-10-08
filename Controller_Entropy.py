@@ -38,10 +38,13 @@ def dispBanner(stage):
                 newXdim += len(trX_images[0][i])
             trX = np.reshape(trX_images, (sizeX[0], newXdim))
             # read in test data
+
         deX, deY = dataset.load_mnist('test')
         deX = deX[np.logical_or(np.equal(deY[:, 0], 7), np.equal(deY[:, 0], 4))]
 
         deY = deY[np.logical_or(np.equal(deY[:, 0], 7), np.equal(deY[:, 0], 4))]
+        print deX
+        print deY
         # we need x to be 1d
         sizeX = deX.shape
         if len(sizeX) > 2:
@@ -49,6 +52,7 @@ def dispBanner(stage):
             for i in range(sizeX[1]):
                 newXdim += len(deX[0][i])
             deX = np.reshape(deX, (sizeX[0], newXdim))
+
 
         return trX_images, trX, trY, deX, deY
     print'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
@@ -95,10 +99,13 @@ def run_test(trX, trY,res_file):
 
     decTree = dt.DT()
     res = 1
-
+    train_data = trX[:int(trX.shape[0]*0.8), :]
+    train_labels = trY[:int(trX.shape[0]*0.8)]
+    test_data = trX[int(trX.shape[0]*0.8) + 1:, :]
+    test_label = trY[int(trX.shape[0]*0.8) + 1:], 20
     print '\nDT (cutoff=20)...'
     res_file.write('\nDT (cutoff=20)')
-    testRun = tt.TrainTest(decTree, trX[0:48000, :], trY[0:48000], trX[48001:60000, :], trY[48001:60000], 20)
+    testRun = tt.TrainTest(decTree, train_data, train_labels, test_data, test_label, 20)
     acc = testRun.run_tt()
     res += testRun.verifyAcc(acc['acc'], desired_dt20)
     print'\nTrainTime, TestTime', acc['trainTime'], acc['testTime']
@@ -106,7 +113,7 @@ def run_test(trX, trY,res_file):
 
     print '\nDT (cutoff=50)...'
     res_file.write('\nDT (cutoff=50)')
-    testRun = tt.TrainTest(decTree, trX[0:48000, :], trY[0:48000], trX[48001:60000, :], trY[48001:60000], 50)
+    testRun = tt.TrainTest(decTree, train_data, train_labels, test_data, test_label, 50)
     acc = testRun.run_tt()
     res += testRun.verifyAcc(acc['acc'], desired_dt50)
     print'\nTrainTime, TestTime', acc['trainTime'], acc['testTime']

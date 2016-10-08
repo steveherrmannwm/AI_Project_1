@@ -33,14 +33,13 @@ class TrainTest(object):
         output['trainTime'] = t1-t0
         print 'Testing...'
         t0 = time.time()
+        print self.testX
         Y = self.learn.res('predict', model=model, test_case=self.testX)
         t1 = time.time()
         output['testTime'] = t1 - t0
+        print Y
         Y = np.array(Y)
         sizeY = Y.shape
-        if len(sizeY) < 2:
-            Y = np.reshape(Y, (sizeY[0],1))
-
         if(len(Y) == len(self.testY)):
             overlp = [Y == self.testY]
             overlp_sum = sum(sum(overlp))
@@ -56,6 +55,3 @@ class TrainTest(object):
             return 1
         print "failed"
         return 0
-    
-       
-        
