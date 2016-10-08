@@ -155,7 +155,6 @@ class DT(object):
         right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1),
                                       completed_features=completed_features)
 
-
         tree = {'isLeaf': 0, 'split': feature_to_check,
                 'left': left_tree, 'right': right_tree}
 

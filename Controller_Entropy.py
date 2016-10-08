@@ -6,7 +6,7 @@ Created on Aug 28, 2016
 import DT_Entropy as dt
 import KNN as knn
 import numpy as np
-#from PIL import Image
+#from PIL import  Image
 import subprocess
 import matplotlib.pyplot as plt
 import MNISTcontrol as ms
@@ -14,7 +14,6 @@ import TrainTest as tt
 from sklearn.datasets.twenty_newsgroups import fetch_20newsgroups
 class Controller(object):
     pass
-
 
 def dispBanner(stage):
     if stage == 'MNIST':
@@ -37,14 +36,11 @@ def dispBanner(stage):
             for i in range(sizeX[1]):
                 newXdim += len(trX_images[0][i])
             trX = np.reshape(trX_images, (sizeX[0], newXdim))
-            # read in test data
-
+            #read in test data
         deX, deY = dataset.load_mnist('test')
         deX = deX[np.logical_or(np.equal(deY[:, 0], 7), np.equal(deY[:, 0], 4))]
 
         deY = deY[np.logical_or(np.equal(deY[:, 0], 7), np.equal(deY[:, 0], 4))]
-        print deX
-        print deY
         # we need x to be 1d
         sizeX = deX.shape
         if len(sizeX) > 2:
@@ -53,26 +49,25 @@ def dispBanner(stage):
                 newXdim += len(deX[0][i])
             deX = np.reshape(deX, (sizeX[0], newXdim))
 
-
         return trX_images, trX, trY, deX, deY
     print'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
     print'********************************************************************'
     print'** 20 NEWSGROUPS EXPERIMENTS'
     print'********************************************************************\n'
     print 'First we load the data \n'
-    cats = ['sci.space', 'rec.sport.baseball']
-    news_docs = fetch_20newsgroups(subset='train', categories=cats)
-    news_test = fetch_20newsgroups(subset='test', categories=cats)
+    cats = ['sci.space','rec.sport.baseball']
+    news_docs = fetch_20newsgroups(subset='train',categories=cats)
+    news_test = fetch_20newsgroups(subset='test',categories=cats)
     trX_images = news_docs.filenames
     trX = news_docs.data
     trY = news_docs.target
     deX = news_test.data
     deY = news_test.target
     raw_input('Press enter to continue...')
-    return trX_images, trX, trY, deX, deY
+    return trX_images, trX, trY, deX,deY
 
 
-def dispImages(title,trX_images):
+def dispImages(title, trX_images):
     print 'and display some digits from it....'
     print '\nClose the image to continue...'
 
@@ -96,16 +91,15 @@ def run_test(trX, trY,res_file):
     print 'We use the first 80% of the data as training, and the last'
     print '20% as test.'
 
-
     decTree = dt.DT()
     res = 1
-    train_data = trX[:int(trX.shape[0]*0.8), :]
-    train_labels = trY[:int(trX.shape[0]*0.8)]
-    test_data = trX[int(trX.shape[0]*0.8) + 1:, :]
-    test_label = trY[int(trX.shape[0]*0.8) + 1:], 20
+    train_data = trX[0:int(len(trX) * 0.8), :]
+    train_labels = trY[0:int(len(trX) * 0.8)]
+    test_data = trX[int(len(trX) * 0.8) + 1:, :]
+    test_labels = trY[int(len(trX) * 0.8)+ 1:]
     print '\nDT (cutoff=20)...'
     res_file.write('\nDT (cutoff=20)')
-    testRun = tt.TrainTest(decTree, train_data, train_labels, test_data, test_label, 20)
+    testRun = tt.TrainTest(decTree, train_data, train_labels, test_data, test_labels, 20)
     acc = testRun.run_tt()
     res += testRun.verifyAcc(acc['acc'], desired_dt20)
     print'\nTrainTime, TestTime', acc['trainTime'], acc['testTime']
@@ -113,7 +107,7 @@ def run_test(trX, trY,res_file):
 
     print '\nDT (cutoff=50)...'
     res_file.write('\nDT (cutoff=50)')
-    testRun = tt.TrainTest(decTree, train_data, train_labels, test_data, test_label, 50)
+    testRun = tt.TrainTest(decTree, train_data, train_labels, test_data, test_labels, 50)
     acc = testRun.run_tt()
     res += testRun.verifyAcc(acc['acc'], desired_dt50)
     print'\nTrainTime, TestTime', acc['trainTime'], acc['testTime']
@@ -223,21 +217,21 @@ if __name__ == '__main__':
         results[content[i].strip()] = content[i+1].strip()
         i+=2
     print 'results keys', results.keys()
-    
+
     #Set up the infrastructure
-    res_file = open('../results.txt','a') 
+    res_file = open('../results.txt','a')
     trX_images=[]
     trX=[]
     trY=[]
     deX=[]
     deY=[]
     data_types = ['MNIST']          #,'20ng'
-    
+
     for i in range(len(data_types)):
         fin = 'finished' + data_types[i]
-        if fin not in results.keys():   
+        if fin not in results.keys():
             trX_images, trX, trY, deX, deY = dispBanner(data_types[i])
-        
+
         disp = 'disp'+data_types[i]
         if disp not in results.keys():
             if i == 0:
@@ -248,37 +242,38 @@ if __name__ == '__main__':
                 raw_input('Press enter to continue...')
             res_file.write('\n' + disp + '\ndone')
 
+
         base = 'baseline'+data_types[i]
         if base not in results.keys():
             res = run_test(trX,trY,res_file)
             res_file.write('\n' + base + '\n')
-            res_file.write(str(res)) 
+            res_file.write(str(res))
             raw_input('Press enter to continue...')
- 
+
         dec = 'dt'+data_types[i]
         if dec not in results.keys():
             print '\nNow we vary the cutoff for the decision tree and see how it affects accuracy...'
             thresh = [5,10,20,40,80,160]
-            decTree = dt.DT()  
-            res = run_comps(decTree, thresh, trX[0:4800, :], trY[0:4800], trX[4801:6000, :], 
+            decTree = dt.DT()
+            res = run_comps(decTree, thresh, trX[0:4800, :], trY[0:4800], trX[4801:6000, :],
                         trY[4801:6000],"Figure 2: DT cutoff versus accuracy (MNIST)","DT cutoff","../figure2.png")
             results[dec] = res
-            res_file.write('\n' + dec + '\n') 
+            res_file.write('\n' + dec + '\n')
             res_file.write(str(res))
             raw_input('Press enter to continue...')
-     
+
         neigh = 'knn'+data_types[i]
         if neigh not in results.keys():
             print '\nNow we vary the k for the KNN classifier and see how it affects accuracy...'
             allK = [1,8,16,32,64,128]
             knnModel = knn.KNN()
-            res = run_comps(knnModel, allK, trX[0:2000, :], trY[0:2000], trX[2001:2501, :], 
+            res = run_comps(knnModel, allK, trX[0:2000, :], trY[0:2000], trX[2001:2501, :],
                          trY[2001:2501],"Figure 3: KNN count versus accuracy (MNIST)","KNN count","../figure3.png")
             results[neigh] = res
             res_file.write('\n' + neigh + '\n')
             res_file.write(str(res))
             raw_input('Press enter to continue...')
-               
+
         heldDT = 'hoDT_'+data_types[i]
         if heldDT not in results.keys():
             print '\nNow we make predictions on dev and test data using the best DT'
@@ -299,7 +294,7 @@ if __name__ == '__main__':
             res_file.write(str(res))
             print 'Tests finished!'
             raw_input('Press enter to continue...')
-        
+
         heldKNN = 'hoKNN_'+data_types[i]
         if heldKNN not in results.keys():
             print '\nNow we make predictions on dev and test data using the best KNN'
@@ -320,7 +315,7 @@ if __name__ == '__main__':
             res_file.write(str(res))
             print 'Tests finished!'
             raw_input('Press enter to continue...')
-      
+
         comp = 'compare'+data_types[i]
         if comp not in results.keys():
             print '\nNow we look at errors made by the two models. Remember to wait for the image to change'
@@ -331,9 +326,9 @@ if __name__ == '__main__':
             res = compareModels(dtres,knnres,devX,devY,4*(i+1))
             res_file.write('\n' + comp + '\n')
             res_file.write(str(res))
-        
+
         res_file.write('\nfinished' + data_types[i] + '\nDone')
-    
+
     res_file.close()
-     
+
     print 'Done'
