@@ -17,6 +17,10 @@ def most_common(lst):
 
 class DT(object):
 
+    def __init__(self):
+        self.classifiers = []
+
+
     def res(self, mode='name', model=None, test_case=np.zeros(1), X=np.zeros(1), Y=np.zeros(1), h_param=-1):
         '''
         usage is of the two following:
@@ -44,6 +48,7 @@ class DT(object):
             if len(sizeY) > 1 and sizeY[1] == 1:
                 Y = np.reshape(Y, (sizeY[1], sizeY[0]))
                 Y = Y[0]
+
             return self.DTconstruct(X, Y, h_param)
 
         if mode == 'predict':
@@ -78,7 +83,7 @@ class DT(object):
         guess = most_common(Y)
         # handle the case where all labels are the same
 
-        if len(set(Y)) == 1 or len(completed_features) == X.shape[1] - 1 or cutoff == 1:
+        if len(set(Y)) == 1 or len(completed_features) == X.shape[1] - 1 or cutoff == X.shape[0]:
             return {"isLeaf": 1, "label": guess}
         # Find what feature we should select next
         columns_to_search = [x for x in xrange(X.shape[1]) if x not in completed_features]
@@ -151,8 +156,8 @@ class DT(object):
         completed_features.append(feature_to_check)
 
         # Build our node, and set off the left and right nodes
-        left_tree = self.DTconstruct(X=no_data, Y=no_labels, cutoff=(cutoff - 1), completed_features=completed_features)
-        right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=(cutoff - 1),
+        left_tree = self.DTconstruct(X=no_data, Y=no_labels, cutoff=cutoff, completed_features=completed_features)
+        right_tree = self.DTconstruct(X=yes_data, Y=yes_labels, cutoff=cutoff,
                                       completed_features=completed_features)
 
         tree = {'isLeaf': 0, 'split': feature_to_check,
